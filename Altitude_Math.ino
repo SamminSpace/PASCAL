@@ -1,11 +1,3 @@
-
-unsigned long missionTime;
-
-float altitude;
-float temperature;
-float pressure;
-
-
 float targetAltitude = 7000;
 float maxStorm = 13000; //the top of the storm
 float minStorm = 2000; //bottom of storm 
