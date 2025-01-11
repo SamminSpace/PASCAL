@@ -9,6 +9,8 @@ int Pump = 18;
 
 int pumpTimer = 0;
 
+bool Sample1_completed;
+
 
 void setup() {
  pinMode(exhaustPin, OUTPUT);
@@ -29,27 +31,28 @@ void setup() {
  digitalWrite(solenoid6, LOW);
  digitalWrite(Pump, LOW);      //turn off pump and close all samples
 
-Serial.begin();
+ Serial.begin();
 }
 
 void loop() {
-  digitalWrite(exhaustPin, LOW);
-  digitalWrite(solenoid1, HIGH);
-  digitalWrite(Pump, HIGH);
-  Serial.println("Begin sample taking.");
+  if (!Sample1_Completed){
+   digitalWrite(exhaustPin, LOW);
+   digitalWrite(solenoid1, HIGH);
+   digitalWrite(Pump, HIGH);
+   Serial.println("Begin taking first sample.");
 
-  pumpTimer = (millis() / 1000); //start timer 
-    
+   pumpTimer = (millis() / 1000); //start timer 
+  }
 
   if (pumpTimer >= PumpTimer()){ //when timer reaches the needed value, end sample
     digitalWrite(Pump, LOW);
     digitalWrite(solenoid1, LOW);
     digitalWrite(exhaustPin, HIGH);
-    Serial.println("Sample has completed.");
-    pumpTimer = 0;
+    Sample1_Completed = true;
+    Serial.println("Sample 1 has completed.");
+    pumpTimer = 0;  //this will need to change to accomate other samples
     return; //stop code
   }
-
 }
 
 
