@@ -1,7 +1,7 @@
-int exhaustPin = 9;
-int solenoid1 = 1;
+int exhaustPin = 9;  //all these are temporary pins
+int solenoid1 = 1;   //need to look at electrical diagrams first
 int solenoid2 = 2;
-int solenoid3 = 3;
+int solenoid3 = 3;  //possibly use array here?
 int solenoid4 = 4;
 int solenoid5 = 5;
 int solenoid6 = 6;
@@ -54,7 +54,7 @@ void loop() {
 
 
 int PumpTimer(){    //returns how long the pump should be turned on for
-  int pumpOn = 15; //pump should stay on for ten second
+  int pumpOn = 15; //pump should stay on for 10-20 seconds
 
   /* In reality, we will do testing to determine the correct 
   amount of time that the pump will stay on. Then we shall have
