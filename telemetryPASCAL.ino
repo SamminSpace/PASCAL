@@ -1,30 +1,19 @@
 //telemrtey?
 #include <SD.h>
 
-
 //data being collected
 unsigned long missionTime;
-String payloadState; //is needed?
-String payload = "PASCAL"; //needed?
-int packetNumber = 0; //needed?
+String payloadState; 
+String payload = "PASCAL"; 
+int packetNumber = 0;
 
 float nitrogen;
 float oxyclean;
-float humidity; //should be doing
+float humidity;
 
 float altitude;
 float temperature;
 float pressure;
-
-float gyroX;
-float gyroY;
-float gyroZ;
-float accelX;
-float accelY;
-float accelZ;
-float magX;
-float magY;
-float magZ;
 
 float gpsAlt;
 float gpsLat;
@@ -57,9 +46,7 @@ void setup() {
   if (dataFile) {
     dataFile.println("Payload, Payload State, Packet Number Mission Time, "
     "UTC Time, Nitrogen Concentration, Oxygen Concentration, Humidity, Altitude, "
-    "Temperature, Pressure, Gyro X, Gyro Y, Gyro Z, Acceleration X, Acceleration Y, "
-    "Accerlaerion Z, Magnetometer X, Magnetometer Y, Magnetometer Z, GPS Altitude, "
-    "GPS Laitiude, GPS Longitude");
+    "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");
     dataFile.close();
     Serial.println("Wrote header.");
   }
@@ -85,9 +72,7 @@ void logSD(){
     dataFile.println(payload + "," + payloadState + "," + packetNumber + 
     "," + missionTime + "," + UTC + "," + nitrogen + "," + oxyclean + "," 
     + humidity + "," + altitude + "," + temperature + "," + pressure +
-    gyroX + "," + gyroY + "," + gyroZ + "," + accelX + "," + accelY + 
-    accelZ + "," + magX + "," + magY + "," + magZ + "," + gpsAlt + ","
-    + gpsLat + "," + gpsLong);
+    gpsAlt + "," + gpsLat + "," + gpsLong);
     dataFile.close();
 
     Serial.println("Sucessful log");
