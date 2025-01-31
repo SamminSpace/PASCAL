@@ -1,11 +1,11 @@
-int exhaustPin = 9;  //all these are temporary pins
-int solenoid1 = 1;   //need to look at electrical diagrams first
-int solenoid2 = 2;
-int solenoid3 = 3;  //possibly use array here?
-int solenoid4 = 4;
-int solenoid5 = 5;
-int solenoid6 = 6;
-int Pump = 18;
+int solenoid1 = 2;
+int solenoid2 = 3;
+int solenoid3 = 4;
+int solenoid4 = 5;
+int solenoid5 = 6;
+int solenoid6 = 9;
+int exhaustPin = 10;
+int motorPin = 1;
 
 int pumpTimer = 0;
 
@@ -20,7 +20,7 @@ void setup() {
  pinMode(solenoid4, OUTPUT);
  pinMode(solenoid5, OUTPUT);
  pinMode(solenoid6, OUTPUT);
- pinMode(Pump, OUTPUT);
+ pinMode(motorPin, OUTPUT);
 
  digitalWrite(exhaustPin, HIGH); //open exhaust in start up to clear airway
  digitalWrite(solenoid1, LOW);
@@ -29,7 +29,7 @@ void setup() {
  digitalWrite(solenoid4, LOW);
  digitalWrite(solenoid5, LOW);
  digitalWrite(solenoid6, LOW);
- digitalWrite(Pump, LOW);      //turn off pump and close all samples
+ digitalWrite(motorPin, LOW);      //turn off pump and close all samples
 
  Serial.begin();
 }
@@ -38,14 +38,14 @@ void loop() {
   if (!Sample1_Completed){
    digitalWrite(exhaustPin, LOW);
    digitalWrite(solenoid1, HIGH);
-   digitalWrite(Pump, HIGH);
+   digitalWrite(motorPin, HIGH);
    Serial.println("Begin taking first sample.");
 
    pumpTimer = (millis() / 1000); //start timer 
   }
 
   if (pumpTimer >= PumpTimer()){ //when timer reaches the needed value, end sample
-    digitalWrite(Pump, LOW);
+    digitalWrite(motorPin, LOW);
     digitalWrite(solenoid1, LOW);
     digitalWrite(exhaustPin, HIGH);
     Sample1_Completed = true;
