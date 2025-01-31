@@ -19,16 +19,16 @@ void getAltitideSample() //Sets the altitudes we will be sampling at
   array[0] = 1000; //1st sample before the storm
   Serial.println(array[0]);
 
-  array[1] = targetAltitude - 1000; //2nd sample is 1km below target
+  array[1] = targetAltitude - 2000; //2nd sample is 2km below target
   Serial.println(array[1]);
 
   array[2] = targetAltitude; //3rd sample is target
   Serial.println(array[2]);
 
-  array[3] = targetAltitude + 200; //4th sample is just above target
+  array[3] = targetAltitude + 500; //4th sample is just above target
   Serial.println(array[3]);
 
-  array[4] = targetAltitude + 1000; //5th sample is 1km above target
+  array[4] = targetAltitude + 2000; //5th sample is 2km above target
   Serial.println(array[4]);
 
   array[5] = 20000;     //6th sample after storm near apogee
