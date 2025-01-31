@@ -20,6 +20,17 @@ float gpsLat;
 float gpsLong;
 String UTC; 
 
+//solenoid and motor pins
+int solenoid1 = 2;
+int solenoid2 = 3;
+int solenoid3 = 4;
+int solenoid4 = 5;
+int solenoid5 = 6;
+int solenoid6 = 9;
+int exhaustPin = 10;
+int motorPin = 1;
+
+
 //set pins AND CHECK THEM 
 const int _MISO = 4;
 const int _MOSI = 7;
