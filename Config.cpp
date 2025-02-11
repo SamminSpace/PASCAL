@@ -1,5 +1,3 @@
-
-
 // This is where all of our configuration stuff goes.
 struct Config
 {
