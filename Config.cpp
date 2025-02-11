@@ -20,9 +20,9 @@ struct Config
         9};
     int exhaustPin = 10;
     int motorPin = 1;
-    int brightsLEDS = 11; // Unconfirmed
-    int tiny = 12;
-    int smol = 13;
+    int brightsLEDS = 11; 
+    int tiny = 7;
+    int smol = 8;
 
     /******************************************There be problems with DEFORESTATION LAWS***********************************/
     GPS gps;
