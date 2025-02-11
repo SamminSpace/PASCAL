@@ -26,20 +26,22 @@ struct Config
 
     /******************************************There be problems with DEFORESTATION LAWS***********************************/
     GPS gps;
-    BMPHumidityAndO2 daBigOne;
+    BMPandHumidity tempAlt;
     NO2 no2;
+    SD logger;
+    O2 oxygen;
 };
 
 // The sensors themselves
 struct GPS
 {
-    int SDA = 16;
-    int SCL = 17;
+    int SDA = 26;
+    int SCL = 27;
 };
 struct BMPHumidityAndO2
 {
-    int SDA = 18;
-    int SCL = 19;
+    int SDA = 12;
+    int SCL = 13;
 };
 // This one is hooked up to the ADC here, but eventually it connects to the NO2 sensors
 struct NO2
@@ -52,4 +54,19 @@ struct NO2
     int A1;
     int A2;
     int A3;
+};
+
+struct SD
+{
+    int MISO = 16;
+    int MOSI = 19;
+    int CS = 17;
+    int CLK = 18;
+
+};
+
+struct O2
+{
+    int SDA = 14;
+    int SCL = 15;
 };
