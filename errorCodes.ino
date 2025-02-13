@@ -1,5 +1,5 @@
 int smol = 7;
-int tiny = 3;
+int tiny = 8;
 
 int error = 6;
 int period = 500;
@@ -32,19 +32,22 @@ void loop() {
     digitalWrite(tiny, LOW);
     digitalWrite(smol, HIGH);
     
-  } else if (error == 4){  // NO2 (smol blinks)
+  } else if (error == 4){  // NO2 (tiny blinks and smol on)
     Serial.println("NO2 (the problem child) is not functioning");
-    blinker = smol;
-    Blinky();
-    
-  } else if (error == 5){  //Humidity (tiny blinks)
-    Serial.println("Must be too dry bc humidty not detected.");
-    blinker = tiny;
-    Blinky();
-  } else if (error == 6){   //O2 (smol on and tiny blinks)
-    Serial.println("Apparently no oxygen found so idk how you are alive rn");
     digitalWrite(smol, HIGH);
     blinker = tiny;
+    Blinky();
+    
+  } else if (error == 5){  //Humidity (smol blinks and tiny on)
+    Serial.println("Must be too dry bc humidty not detected.");
+    digitalWrite(tiny, HIGH);
+    blinker = smol;
+    Blinky();
+     
+  } else if (error == 6){   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
+    Serial.println("Apparently no oxygen found so idk how you are alive rn");
+    digitalWrite(tiny, LOW);
+    blinker = smol;
     Blinky();
   } else{
     Serial.println("lets go!");
@@ -57,7 +60,6 @@ void loop() {
     
 
 void Blinky() {
-
   unsigned long currentMillis;
   
   currentMillis = millis();  //get the current "time" (actually the number of milliseconds since the program started)
@@ -65,8 +67,6 @@ void Blinky() {
   {
     digitalWrite(blinker, !digitalRead(blinker));  //if so, change the state of the LED.  Uses a neat trick to change the state
     startMillis = currentMillis;  //IMPORTANT to save the start time of the current LED state.
-  }
-
- 
+  } 
 }
  
