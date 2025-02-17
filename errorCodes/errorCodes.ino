@@ -1,9 +1,20 @@
-int smol = 7;
-int tiny = 8;
+int smol = 13;
+int tiny = 17;
 
-int error = 6;
 int period = 500;
 int blinker;
+
+enum errorState
+{
+  SD_ERROR,
+  GPS_ERROR,
+  BMP_ERROR,
+  NO2_ERROR,
+  HUMID_ERROR,
+  O2_ERROR
+};
+
+errorState error = SD_ERROR;
 
 unsigned long startMillis;
 
@@ -17,34 +28,34 @@ void setup() {
 void loop() {
  Serial.print("Checking.... ");
 
-  if (error == 1){		//error 1 will be SD (all on)
+  if (error = SD_ERROR){		//error 1 will be SD (all on)
     Serial.println("SD failed! Why? idk go fix it.");
     digitalWrite(tiny, HIGH);
     digitalWrite(smol, HIGH);
     
-  } else if (error == 2){   //error 2 is GPS (1 on/off)
+  } else if (error = GPS_ERROR){   //error 2 is GPS (1 on/off)
     Serial.println("Hey, your GPS is messed up!");
     digitalWrite(tiny, HIGH);
     digitalWrite(smol, LOW);
     
-  } else if (error == 3){   //BMP (other on/off)
+  } else if (error = BMP_ERROR){   //BMP (other on/off)
     Serial.println("BMP not found.");
     digitalWrite(tiny, LOW);
     digitalWrite(smol, HIGH);
     
-  } else if (error == 4){  // NO2 (tiny blinks and smol on)
+  } else if (error = NO2_ERROR){  // NO2 (tiny blinks and smol on)
     Serial.println("NO2 (the problem child) is not functioning");
     digitalWrite(smol, HIGH);
     blinker = tiny;
     Blinky();
     
-  } else if (error == 5){  //Humidity (smol blinks and tiny on)
+  } else if (error = HUMID_ERROR){  //Humidity (smol blinks and tiny on)
     Serial.println("Must be too dry bc humidty not detected.");
     digitalWrite(tiny, HIGH);
     blinker = smol;
     Blinky();
      
-  } else if (error == 6){   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
+  } else if (error = O2_ERROR){   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
     Serial.println("Apparently no oxygen found so idk how you are alive rn");
     digitalWrite(tiny, LOW);
     blinker = smol;
