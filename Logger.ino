@@ -18,7 +18,7 @@ void setup()
   while (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
     delay(1000);
-      // No SD card, so don't do anything more - stay stuck here
+      // This will change later im just lazy
   }
   Serial.println("card initialized.");
 }
@@ -34,12 +34,10 @@ void loop()
   if (dataFile) {
     dataFile.println(openingString);
     dataFile.close();
-    // print to the serial port too:
     Serial.println("it did it");
   } else {
-    // if the file isn't open, pop up an error:
-    Serial.println("error opening Logger.txt");
+    Serial.println("error opening file");
   }
-  delay(1000); // run at a reasonable not-too-fast speed
+  delay(1000);
 }
 
