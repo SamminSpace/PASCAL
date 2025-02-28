@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <Adafruit_BMP3XX.h>
+#include "DFRobot_OxygenSensor.h"
 
 // Define custom I2C pins
 #define SDA_PIN 12  // Change to your desired SDA pin
@@ -8,8 +9,13 @@
 #define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BMP3XX bmp;  // Create BMP390 object
 
+
+#define Oxygen_IICAddress ADDRESS_3
+#define COLLECT_NUMBER  10             // collect number, the collection range is 1-100.
+DFRobot_OxygenSensor oxygen;
+
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     delay(1000);
     
     // Set up I2C on custom pins
@@ -23,15 +29,27 @@ void setup() {
         delay(1000);
     }
 
-    Serial.println("BMP390 Sensor Found!");
+
+    Serial.begin(9600);
+    while(!oxygen.begin(Oxygen_IICAddress)){
+      Serial.println("I2c device number error !");
+     delay(1000);
+   }
+    
+    Serial.println("I2c connect success to all devices!");
+   
 }
 
 void loop() {
-    if (! bmp.performReading()) {
-    Serial.println("Failed to perform reading :(");
-    delay(500);
-    return;
-  }
+
+  ReadBMP();
+  OxygenDetect();
+
+  Serial.println();
+  delay(1000);
+}
+
+void ReadBMP(){
   Serial.print("Temperature = ");
   Serial.print(bmp.temperature);
   Serial.println(" *C");
@@ -43,7 +61,12 @@ void loop() {
   Serial.print("Approx. Altitude = ");
   Serial.print(bmp.readAltitude(SEALEVELPRESSURE_HPA));
   Serial.println(" m");
+}
 
-  Serial.println();
-  delay(2000);
+
+void OxygenDetect(){
+  float oxygenData = oxygen.getOxygenData(COLLECT_NUMBER);
+  Serial.print("Oxygen concentration is ");
+  Serial.print(oxygenData);
+  Serial.println(" %vol");
 }
