@@ -1,0 +1,136 @@
+#include <Wire.h>
+#include <SD.h>
+#include <SPI.h>
+#include <Adafruit_BMP3XX.h>
+#include "DFRobot_OxygenSensor.h"
+
+// Define custom I2C pins
+#define SDA_PIN 12  // Change to your desired SDA pin
+#define SCL_PIN 13  // Change to your desired SCL pin
+
+#define SEALEVELPRESSURE_HPA (1013.25)
+Adafruit_BMP3XX bmp;  // Create BMP390 object
+
+
+#define Oxygen_IICAddress ADDRESS_3
+#define COLLECT_NUMBER  10             // collect number, the collection range is 1-100.
+DFRobot_OxygenSensor oxygen;
+
+
+#include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
+SFE_UBLOX_GNSS myGNSS;
+#define gnssAddress 0x42 
+
+
+
+//SD
+const int chipSelect = 17;
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(chipSelect, OUTPUT);
+    
+    // Set up I2C on custom pins
+    Wire.setSDA(SDA_PIN);
+    Wire.setSCL(SCL_PIN);
+    Wire.begin();  // Start I2C communication
+
+    // Initialize BMP390
+    while (!bmp.begin_I2C()) {
+        Serial.println("Could not find a valid BMP390 sensor, check wiring!");
+        delay(1000);
+    }
+
+    while(!oxygen.begin(Oxygen_IICAddress)){
+      Serial.println("I2c device number error !");
+     delay(1000);
+   }
+
+
+    while (myGNSS.begin() == false) //Connect to the u-blox module using our custom port and address
+  {
+    Serial.println(F("u-blox GNSS not detected. Retrying..."));
+    delay (1000);
+  }
+
+   myGNSS.setI2COutput(COM_TYPE_UBX);
+    
+    Serial.println("I2c connect success to all devices!");
+
+    while (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    delay(1000);
+      // This will change later im just lazy
+  }
+   
+}
+
+void loop() {
+
+  ReadBMP();
+  OxygenDetect();
+  GPSucks();
+  SDlog();
+
+  Serial.println();
+  Serial.println("_______________");
+  delay(1000);
+}
+
+void ReadBMP(){
+  Serial.print("Temperature = ");
+  Serial.print(bmp.temperature);
+  Serial.println(" *C");
+
+  Serial.print("Pressure = ");
+  Serial.print(bmp.pressure / 100.0);
+  Serial.println(" hPa");
+
+  Serial.print("Approx. Altitude = ");
+  Serial.print(bmp.readAltitude(SEALEVELPRESSURE_HPA));
+  Serial.println(" m");
+}
+
+
+void OxygenDetect(){
+  float oxygenData = oxygen.getOxygenData(COLLECT_NUMBER);
+  Serial.print("Oxygen concentration is ");
+  Serial.print(oxygenData);
+  Serial.println(" %vol");
+}
+
+
+void GPSucks(){
+ int32_t latitude = myGNSS.getLatitude();
+  Serial.print(F("Lat: "));
+  Serial.print(latitude);
+
+  int32_t longitude = myGNSS.getLongitude();
+  Serial.print(F(" Long: "));
+  Serial.print(longitude);
+  Serial.print(F(" (degrees * 10^-7)"));
+
+  int32_t altitude = myGNSS.getAltitudeMSL(); // Altitude above Mean Sea Level
+  Serial.print(F(" Alt: "));
+  Serial.print(altitude);
+  Serial.print(F(" (mm)"));
+}
+
+
+void SDlog(){
+String openingString = " ________  ________  ________  ________  ________  ___          \n|\\   __  \\|\\   __  \\|\\   ____\\|\\   ____\\|\\   __  \\|\\  \\         \n\\ \\  \\|\\  \\ \\  \\|\\  \\ \\  \\___|\\ \\  \\___|\\ \\  \\|\\  \\ \\ \\        \n \\ \\   ____\\ \\   __  \\ \\_____  \\ \\  \\    \\ \\   __  \\ \\  \\       \n  \\ \\  \\___|\\ \\  \\ \\  \\|____|\\  \\ \\  \\____\\ \\  \\ \\  \\ \\  \\____  \n   \\ \\__\\    \\ \\__\\ \\__\\____\\_\\  \\ \\_______\\ \\__\\ \\__\\ \\_______\\n    \\|__|     \\|__|\\|__|\\_________\\|_______|\\|__|\\|__|\\|_______|\n                       \\|_________|                             \n                                                                                                                                \n";
+  
+  // open the file.
+  File dataFile = SD.open("PASCALtest2.txt", FILE_WRITE);
+  // if the file is available, write to it:
+  if (dataFile) {
+    dataFile.println(openingString);
+    dataFile.println("Sam was here");
+    dataFile.close();
+    Serial.println("it did it");
+  } else {
+    Serial.println("error opening file");
+  }
+
+
+}
