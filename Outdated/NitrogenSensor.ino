@@ -22,6 +22,7 @@ float NO2;            // NO2 ppb
 float WE_offset = 225;
 float Aux_offset = 224;
 float SENSITIVITY = 0.225; //in mV/ppb
+// Will not be a constant
 int nT = 1.3; //temperature dependent multiplier
 
 void setup ()

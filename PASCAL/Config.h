@@ -1,0 +1,71 @@
+
+// Keeps the linker from compiling this a bunch of times
+#pragma once
+
+
+// This is where you change the settings for each flight
+struct Config {
+
+    float samplingAltitudes[6] = {1000.0,
+        5000.0,
+        5000.0,
+        9000.0,
+        9000.0,
+        20000.0
+    }; // m
+
+    
+    Pins pins;
+    I2C i2c; 
+    
+
+    // The constants, generally shouldn't be touched
+    float seaLevelPressureHPa = 1013.25;
+
+    // Constants for the oxygen sensor
+    float WEOffset = 225;
+    float AuxOffset = 224;
+    float sensitivity = 0.225; //in mV/ppb
+    // Technically depends on the temperature, so not constant
+    int temperatureMultiplier = 1.3; 
+
+};
+
+// The I2C pins that all of the things will use
+struct I2C {
+    int sda = 12;
+    int scl = 13;
+};
+
+
+// Where all of the pins go
+struct Pins {
+
+    int solenoidPins[6] = {
+        2,
+        3,
+        4,
+        5,
+        6,
+        9
+    };
+    int exhaustPin = 10;
+    int pumpPin = 1;
+
+    // The LEDs that will be flashing during the flight outside
+    int brightsLEDS = 11; 
+    
+    // These are the LEDs on the board, for debugging
+    int tiny = 7;
+    int smol = 8;
+
+    // For SPI I think
+    int chipSelect = 17;
+
+    // For the NO2 sensor
+    int WE1Pin = 34;
+    int Aux1Pin = 32;
+    int PTPin = 31;
+
+};
+
