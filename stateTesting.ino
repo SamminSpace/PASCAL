@@ -1,38 +1,110 @@
-//I think this should work but it needs to be tested - Matthew
+int LEDs = 7;
+unsigned long lastBlinkTime = 0;
+unsigned long interval = 10000; // 10 sec OFF time for LEDS
+int onDuration = 100; // 100 ms ON time for LEDs
+bool ledOn = false;  //state whether outside LEDs are on/off
 
-int interval = 0;
+
+
+int velocityInterval = 0;  
+int rangeInterval = 0;
+int thirtyTimer = 30000; // 30 minites is 1800 seconds
+unsigned long missionTime; 
+double realTime; //this is missionTime minus the initialization time used for simulation 
+
 float gpsAlt;
 float oldAlt;
+float altDiff; //not really used except to display to serial 
+
 
 enum State 
 {
-    STANDBY = 0,
-    PASSIVE = 1,
-    DESCENT = 2,
-    LANDED = 3
+    INITIALIZATION = 0,
+  	STANDBY = 1,
+    PASSIVE = 2,
+    DESCENT = 3,
+    LANDED = 4
 };
 
-State flightState; //Starts at STANDBY
+State flightState; //Starts at INITIALZATION
+
+
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LEDs, OUTPUT);
+  
+  flightState = INITIALIZATION;
+  velocityInterval = 0;
+  rangeInterval = 0;
+ 
+}
+
+
+void loop() {
+     // Testing Purposes
+  	missionTime = millis();
+  
+    Serial.print("Alt: ");
+    Serial.print(gpsAlt);
+    Serial.print(",  Old Alt: ");
+    Serial.print(oldAlt);
+  	Serial.print(",  Altidude Differnce: ");
+    Serial.println(altDiff);
+
+    
+    getAlt();
+    decideState();
+    Serial.println(flightState);
+  	LEDblink();
+
+    
+    delay(250); //DELETE 
+    
+}
+
+
+
+float getAlt(){
+  altDiff = gpsAlt - oldAlt;
+  oldAlt = gpsAlt; 
+  realTime = (missionTime - thirtyTimer)/ 1000.000;
+  
+  if (flightState == INITIALIZATION){
+    return gpsAlt;
+  }
+  
+  gpsAlt = (-1 * (.25 * realTime - 11) * (.25 * realTime - 11)) + 115;
+  
+  if (gpsAlt < 20){
+ 	gpsAlt = 19;  
+  	return gpsAlt;
+  }
+  
+  return gpsAlt;
+}
+
+
 
 bool isItDescending()
 {
     if (gpsAlt < oldAlt)
     {
-        interval++;
-        Serial.println("HEY YES ONNCE!!!!");
+        velocityInterval++;
+        Serial.println("going down?!!!!");
 
-        if (interval > 4) // If it descends for over a minute it changes the state to Descending
+        if (velocityInterval > 4) // If it descends for over a minute it changes the state to Descending
         {
-            interval = 0; 
-            Serial.println("we set to zero");
+            velocityInterval = 0; 
+            Serial.println("set vel to zero");
             Serial.println("HEY IT SHOULD BE TRUE FOR NEGATIVE VELOCOTY!");
             return true;
         }
     }
     else
     {
-        interval = 0;
-        Serial.println("we set to zero");
+        velocityInterval = 0;
+        Serial.println("we got set to zero");
         return false;
     }
     return false;
@@ -42,81 +114,72 @@ bool isItDescending()
 
 bool isConstantAlt()
 {
-  if ((gpsAlt<oldAlt+7) && (gpsAlt>oldAlt-7)) //Checks if the gpsAlt is within a range of 50 meters from the oldAlt
+  if ((gpsAlt < oldAlt + 5) && (gpsAlt > oldAlt - 5)) //Checks if payload stationary
     {
-        interval++;
-        if (interval > 3) // If it stays within +-50 Meters for over a minute it changes the state to Landed
+        rangeInterval++;
+        if (rangeInterval > 4) // If it stays within +-50 Meters for over a minute it changes the state to Landed
         {
-            interval = 0; 
+            rangeInterval = 0; 
             return true;
         }
     }
     else
     {
-        interval = 0;
+        rangeInterval = 0;
         return false;
     }
 
     return false;
  }
-}
+
 
 
 void decideState() // TODO Run this every 15 seconds
 {
-    if ((gpsAlt > 500) && (flightState == STANDBY))
+  
+    if ((missionTime > thirtyTimer) && (flightState == INITIALIZATION))
+    {
+        flightState = STANDBY;
+    
+    }
+    else if ((gpsAlt > 60) && (flightState == STANDBY))
     {
         flightState = PASSIVE;
+      	
     }
     else if ((isItDescending()) && (flightState == PASSIVE))
     {
         flightState = DESCENT;
-        interval = 0;
+      
+      
     }
-    else if ((isConstantAlt()) && (flightState == DESCENT) && gpsAlt < 1500)
+    else if ((isConstantAlt()) && (flightState == DESCENT) && gpsAlt < 20)
     {
         flightState = LANDED;
+  
     }
-   
-}
-void setup() {
-  Serial.begin(9600);
-  flightState = PASSIVE;
-  interval = 0;
-
-
-}
-
-void loop() {
-     // Testing Purposes
-    Serial.print("Alt: ");
-    Serial.println(gpsAlt);
-    Serial.print("Old Alt: ");
-    Serial.println(oldAlt);
-
-    
-    getAlt();
-    decideState();
-    Serial.println(flightState);
-
-    delay(250);
-    
 }
 
 
-
-int getAlt(){
-
-  oldAlt = gpsAlt; 
-  gpsAlt = 18000 + (200 * millis() / 1000) - (6 * millis() * millis () / 1000 / 1000 );
-
-  if (gpsAlt < 17000){
-    gpsAlt = 16000;
-    return gpsAlt;
+void LEDblink(){
+  if (flightState == INITIALIZATION){   //.LED Blink pattern for initialization
+    interval = 10000; // 10 sec OFF time for LEDS
+    onDuration = 100; // 100 ms ON time for LEDs
+  } 
+  else {
+    interval = 1500; //Off time for normal blink
+    onDuration = 1000;  //On time for normal blink
   }
- 
-  return gpsAlt;
+  
+  unsigned long currentMillis = millis();
 
-
-
+ 	 if (!ledOn && (currentMillis - lastBlinkTime >= interval)) {
+   		 digitalWrite(LEDs, HIGH);
+   		 ledOn = true;
+   		 lastBlinkTime = currentMillis;
+ 	}		
+ 		 if (ledOn && (currentMillis - lastBlinkTime >= onDuration)) {
+   		 digitalWrite(LEDs, LOW);
+   		 ledOn = false;
+ 	 }
 }
