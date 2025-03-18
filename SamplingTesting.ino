@@ -88,7 +88,7 @@ float getAlt(){
     return gpsAlt;
   }
   
-  gpsAlt = (-1 * (.25 * realTime - 11) * (.25 * realTime - 11)) + 115;
+  gpsAlt = (-1 * (realTime / 27000 - 220) * (realTime / 27000 - 220)) + 21000; //model parabola
   
   if (gpsAlt < 20){
  	gpsAlt = 19;  
