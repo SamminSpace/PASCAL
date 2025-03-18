@@ -1,13 +1,20 @@
+int LEDs = 7;
+unsigned long lastBlinkTime = 0;
+unsigned long interval = 10000; // 10 sec OFF time for LEDS
+int onDuration = 100; // 100 ms ON time for LEDs
+bool ledOn = false;  //state whether outside LEDs are on/off
 
-int velocityInterval = 0;
+
+
+int velocityInterval = 0;  
 int rangeInterval = 0;
-int thirtyTimer = 10; // 30 minites is 1800 seconds
+int thirtyTimer = 30000; // 30 minites is 1800 seconds
 unsigned long missionTime; 
-unsigned long realTime; //this is minus the initialization time
+double realTime; //this is missionTime minus the initialization time used for simulation 
 
 float gpsAlt;
 float oldAlt;
-float altDiff;
+float altDiff; //not really used except to display to serial 
 
 
 enum State 
@@ -25,17 +32,18 @@ State flightState; //Starts at INITIALZATION
 
 void setup() {
   Serial.begin(9600);
-
+  pinMode(LEDs, OUTPUT);
+  
   flightState = INITIALIZATION;
   velocityInterval = 0;
   rangeInterval = 0;
-
+ 
 }
 
 
 void loop() {
      // Testing Purposes
-  	missionTime = millis() / 1000;
+  	missionTime = millis();
   
     Serial.print("Alt: ");
     Serial.print(gpsAlt);
@@ -48,28 +56,26 @@ void loop() {
     getAlt();
     decideState();
     Serial.println(flightState);
+  	LEDblink();
 
     
-    delay(1000);
+    delay(250); //DELETE 
     
 }
 
 
 
-float getAlt(){   //test code for like a 1.5 min test
+float getAlt(){
   altDiff = gpsAlt - oldAlt;
   oldAlt = gpsAlt; 
-  realTime = missionTime - thirtyTimer; //the actual time for mock altitude function 
-
-// if in initial state, payload no move
+  realTime = (missionTime - thirtyTimer)/ 1000.000;
+  
   if (flightState == INITIALIZATION){
     return gpsAlt;
   }
-
-// this is a quadric that mimics balloon flight; need to be changed for long flight
+  
   gpsAlt = (-1 * (.25 * realTime - 11) * (.25 * realTime - 11)) + 115;
-
-// once get under a threshhold, stay constant
+  
   if (gpsAlt < 20){
  	gpsAlt = 19;  
   	return gpsAlt;
@@ -77,6 +83,7 @@ float getAlt(){   //test code for like a 1.5 min test
   
   return gpsAlt;
 }
+
 
 
 bool isItDescending()
@@ -89,6 +96,7 @@ bool isItDescending()
         if (velocityInterval > 4) // If it descends for over a minute it changes the state to Descending
         {
             velocityInterval = 0; 
+            Serial.println("set vel to zero");
             Serial.println("HEY IT SHOULD BE TRUE FOR NEGATIVE VELOCOTY!");
             return true;
         }
@@ -106,7 +114,7 @@ bool isItDescending()
 
 bool isConstantAlt()
 {
-  if ((gpsAlt<oldAlt+10) && (gpsAlt>oldAlt-10)) //Checks if the gpsAlt is within a range of 50 meters from the oldAlt
+  if ((gpsAlt < oldAlt + 5) && (gpsAlt > oldAlt - 5)) //Checks if payload stationary
     {
         rangeInterval++;
         if (rangeInterval > 4) // If it stays within +-50 Meters for over a minute it changes the state to Landed
@@ -132,23 +140,46 @@ void decideState() // TODO Run this every 15 seconds
     if ((missionTime > thirtyTimer) && (flightState == INITIALIZATION))
     {
         flightState = STANDBY;
-      	Serial.println("STANDBY");
+    
     }
     else if ((gpsAlt > 60) && (flightState == STANDBY))
     {
         flightState = PASSIVE;
-      		Serial.println("PASSIVE");
+      	
     }
     else if ((isItDescending()) && (flightState == PASSIVE))
     {
         flightState = DESCENT;
-        	Serial.println("DESCENT");
+      
       
     }
-    else if ((isConstantAlt()) && (flightState == DESCENT) && gpsAlt < 20) //CHANEG LATER
+    else if ((isConstantAlt()) && (flightState == DESCENT) && gpsAlt < 20)
     {
         flightState = LANDED;
-        	Serial.println("LANDED");
+  
     }
-   
+}
+
+
+void LEDblink(){
+  if (flightState == INITIALIZATION){   //.LED Blink pattern for initialization
+    interval = 10000; // 10 sec OFF time for LEDS
+    onDuration = 100; // 100 ms ON time for LEDs
+  } 
+  else {
+    interval = 1500; //Off time for normal blink
+    onDuration = 1000;  //On time for normal blink
+  }
+  
+  unsigned long currentMillis = millis();
+
+ 	 if (!ledOn && (currentMillis - lastBlinkTime >= interval)) {
+   		 digitalWrite(LEDs, HIGH);
+   		 ledOn = true;
+   		 lastBlinkTime = currentMillis;
+ 	}		
+ 		 if (ledOn && (currentMillis - lastBlinkTime >= onDuration)) {
+   		 digitalWrite(LEDs, LOW);
+   		 ledOn = false;
+ 	 }
 }
