@@ -1,7 +1,6 @@
 
 // This is what Arduino IDE will actually be running
 // Everything else will be imported
-i did a thing
 
 // Library imports
 #include <Wire.h>
