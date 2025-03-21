@@ -5,9 +5,9 @@
 // #include <Adafruit_BMP3XX.h>
 // #include "DFRobot_OxygenSensor.h"
 
-#include "PASCAL/Include/Logger.h"
+#include "Logger.h"
 
-Logger::Logger(string fileNameToWrite) {
+Logger::Logger(String fileNameToWrite) {
     fileName = fileNameToWrite;
 }
 
@@ -19,7 +19,7 @@ void Logger::init() {
     }
 }
 
-void Logger::write(string toWrite) {
+void Logger::write(String toWrite) {
     File dataFile = SD.open(fileName + ".txt", FILE_WRITE);
     if (dataFile) {
         dataFile.println(openingString);

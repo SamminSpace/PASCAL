@@ -10,26 +10,28 @@
 #include "DFRobot_OxygenSensor.h"
 
 // Sensor imports
-#import "Include/Logger.h"
-#import "Include/BMP.h"
-#import "Include/Oxygen.h"
-#import "Include/GPS.h"
+#import "Logger.h"
+#import "BMP.h"
+#import "Oxygen.h"
+#import "GPS.h"
 #import "Config.h"
 
 
 // Declaring all of the sensors and things
-Config config;
-GPS gps
-Logger sd("Testing");
+Config config;  
+GPS gps;
+Logger sd = Logger((String("Testing")));
 
 void setup() {
 
+    // TODO finish the flight portion
+
     // Setting up the chipselect
-    pinMode(config.pins.chipSelect, OUTPUT);
+    // pinMode(config.pins.chipSelect, OUTPUT);
 
     // Initializing the things
-    gps.init();
-    sd.init();
+    // gps.init();
+    // sd.init();
     
 
 

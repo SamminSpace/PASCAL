@@ -1,7 +1,7 @@
 #include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
 
-#include "Source/Time.cpp"
-#include "Source/GPS.cpp"
+#include "Time.cpp"
+#include "GPS.h"
 #include <optional>
 
 

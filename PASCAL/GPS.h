@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Time.h"
+#include <optional>
+#include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 
 // A UTC time struct for data organization
 struct UTCTime {

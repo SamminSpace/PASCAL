@@ -14,7 +14,7 @@ public:
     // Reads from the oxygen sensor
     float getOxygen();
 
-}
+};
 
 
 

@@ -2,41 +2,17 @@
 // Keeps the linker from compiling this a bunch of times
 #pragma once
 
-
-// This is where you change the settings for each flight
-struct Config {
-
-    float samplingAltitudes[6] = {1000.0,
-        5000.0,
-        5000.0,
-        9000.0,
-        9000.0,
-        20000.0
-    }; // m
-
-    
-    Pins pins;
-    I2C i2c; 
-    
-
-    // The constants, generally shouldn't be touched
-    float seaLevelPressureHPa = 1013.25;
-
-    // Constants for the oxygen sensor
-    float WEOffset = 225;
-    float AuxOffset = 224;
-    float sensitivity = 0.225; //in mV/ppb
-    // Technically depends on the temperature, so not constant
-    int temperatureMultiplier = 1.3; 
-
-};
+#include <Wire.h>
+#include <SD.h>
+#include <SPI.h>
+#include <Adafruit_BMP3XX.h>
+#include "DFRobot_OxygenSensor.h"
 
 // The I2C pins that all of the things will use
 struct I2C {
     int sda = 12;
     int scl = 13;
 };
-
 
 // Where all of the pins go
 struct Pins {
@@ -68,4 +44,35 @@ struct Pins {
     int PTPin = 31;
 
 };
+
+
+// This is where you change the settings for each flight
+struct Config {
+
+    float samplingAltitudes[6] = {
+        1000.0,
+        5000.0,
+        5000.0,
+        9000.0,
+        9000.0,
+        20000.0
+    }; // m
+
+    
+    Pins pins;
+    I2C i2c; 
+    
+
+    // The constants, generally shouldn't be touched
+    float seaLevelPressureHPa = 1013.25;
+
+    // Constants for the oxygen sensor
+    float WEOffset = 225;
+    float AuxOffset = 224;
+    float sensitivity = 0.225; //in mV/ppb
+    // Technically depends on the temperature, so not constant
+    int temperatureMultiplier = 1.3; 
+
+};
+
 

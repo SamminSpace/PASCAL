@@ -1,8 +1,8 @@
 
-#include "Inlcude/BMP.h"
+#include "BMP.h"
 
 
-double[3] BMP::readBMP(float seaLevelPressure){
+double* BMP::readBMP(float seaLevelPressure){
   return [bmp.temperature, bmp.pressure / 100.0,bmp.readAltitude(seaLevelPressure)];
 
 }
