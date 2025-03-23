@@ -23,14 +23,9 @@ float gpsAlt;
 float gpsLat;
 float gpsLong;
 String UTC; 
+int SIV; //Satelites in view (in know I cant spell
 
-//set pins AND CHECK THEM 
-const int _MISO = 4;
-const int _MOSI = 7;
-const int _CS = 5;
-const int _SCK = 6;
-
-
+const int _CS = 17;
 
 
 void setup() {
@@ -72,8 +67,9 @@ void logSD(){
 
    File dataFile = SD.open("PASCAL.csv", FILE_WRITE);  
 
+  
   if (dataFile) {
-    dataFile.println(payload + "," + payloadState + "," + packetNumber + 
+    dataFile.println(payload + "," + payloadState + "," + packetNumber + "," + SIV +
     "," + missionTime + "," + UTC + "," + nitrogen + "," + WE + "," + Aux + "," + oxyclean + "," 
     + humidity + "," + altitude + "," + temperature + "," + pressure +
     gpsAlt + "," + gpsLat + "," + gpsLong);
