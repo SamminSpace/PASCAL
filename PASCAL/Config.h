@@ -66,7 +66,7 @@ struct Config {
     // The constants, generally shouldn't be touched
     float seaLevelPressureHPa = 1013.25;
 
-    // Constants for the oxygen sensor
+    // Constants for the nitrogen sensor
     float WEOffset = 225;
     float AuxOffset = 224;
     float sensitivity = 0.225; //in mV/ppb

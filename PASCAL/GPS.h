@@ -18,7 +18,7 @@ struct UTCTime {
 class GPS {
 private: 
     SFE_UBLOX_GNSS gps;
-    Timer tick = Timer(1000); // ms
+    //Timer tick = Timer(1000); // ms
     int gnssAddress = 0x42;
 
 public:

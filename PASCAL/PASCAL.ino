@@ -10,20 +10,19 @@
 #include "DFRobot_OxygenSensor.h"
 
 // Sensor imports
-#import "Logger.h"
-#import "BMP.h"
-#import "Oxygen.h"
-#import "GPS.h"
-#import "Config.h"
+#include "Logger.h"
+#include "BMP.h"
+#include "Oxygen.h"
+#include "GPS.h"
+#include "Config.h"
 
 
 // Declaring all of the sensors and things
 Config config;  
-GPS gps;
-Logger sd = Logger((String("Testing")));
+GPS gps; //had to comment out Timer in line 18 of gps.h to config
+Logger sd = Logger((String("Testing")));  //probelms in config idk why
 
 void setup() {
-
     // TODO finish the flight portion
 
     // Setting up the chipselect
@@ -39,8 +38,6 @@ void setup() {
 }
 
 void loop() {
-
-
 
 }
 
