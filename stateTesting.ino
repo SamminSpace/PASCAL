@@ -4,8 +4,6 @@ unsigned long interval = 10000; // 10 sec OFF time for LEDS
 int onDuration = 100; // 100 ms ON time for LEDs
 bool ledOn = false;  //state whether outside LEDs are on/off
 
-
-
 int velocityInterval = 0;  
 int rangeInterval = 0;
 int thirtyTimer = 30000; // 30 minites is 1800 seconds
@@ -15,6 +13,7 @@ double realTime; //this is missionTime minus the initialization time used for si
 float gpsAlt;
 float oldAlt;
 float altDiff; //not really used except to display to serial 
+
 
 
 enum State 
@@ -28,6 +27,18 @@ enum State
 
 State flightState; //Starts at INITIALZATION
 
+
+enum SampleState
+{
+    INITIALIZING = 0, // Payload is initializing or is below first collection
+    BEFORE_STORM = 1,
+    NEG_TARGET = 2,
+    POS_TARGET = 3,
+    ABOVE_STORM = 4,
+    DONE = 5 // Sampling is done
+};
+
+SampleState sampleStatus;
 
 
 void setup() {
@@ -57,6 +68,8 @@ void loop() {
     decideState();
     Serial.println(flightState);
   	LEDblink();
+
+    sampling();
 
     
     delay(250); //DELETE 
@@ -158,6 +171,38 @@ void decideState() // TODO Run this every 15 seconds
         flightState = LANDED;
   
     }
+}
+
+
+void sampling()
+{
+    if (gpsAlt> 1000 && sampleStatus == 0) // TODO change 1000 to Config.heights[0]
+    {
+        getSample(0);
+        Serial.println("Sample 1");
+    }
+    else if (gpsAlt>5000 && sampleStatus == 1) // TODO change 5000 to Config.heights[1]
+    {
+        getSample(1);
+        Serial.println("Sample 2/3");
+    }
+    else if (gpsAlt>9000 && sampleStatus == 2) // TODO change 9000 to Config.heights[2]
+    {
+        getSample(2);
+        Serial.println("Sample 3/4");
+    }
+    else if (gpsAlt>20000 && sampleStatus == 3) // TODO change 20000 to Config.heights[3]
+    {
+        getSample(3);
+        Serial.println("Sample 4");
+    }
+}
+
+void getSample(int sampleNum)
+{
+    // Get that sample
+    // We can use Config.solenoidPins[sampleNum] 
+
 }
 
 
