@@ -5,6 +5,8 @@ bool collectingAir = false;
 float gpsAlt;
 float oldAlt;
 
+int currentTime;
+int stateMachineTime; // Time since last ran for the stateMachine
 
 enum State 
 {
@@ -64,7 +66,7 @@ bool isConstantAlt()
 }
 
 
-void decideState() // TODO Run this every 15 seconds
+void decideState()
 {
     if ((gpsAlt > 500) && (flightState == STANDBY))
     {
@@ -84,19 +86,19 @@ void decideState() // TODO Run this every 15 seconds
 
 void sampling()
 {
-    if (gpsAlt>1000 && sampleStatus == 0) // TODO change 1000 to Config.heights[0]
+    if (gpsAlt>1000 && sampleStatus == INITIALIZING) // TODO change 1000 to Config.heights[0]
     {
         getSample(0);
     }
-    else if (gpsAlt>5000 && sampleStatus == 1) // TODO change 5000 to Config.heights[1]
+    else if (gpsAlt>5000 && sampleStatus == BEFORE_STORM) // TODO change 5000 to Config.heights[1]
     {
         getSample(1);
     }
-    else if (gpsAlt>9000 && sampleStatus == 2) // TODO change 9000 to Config.heights[2]
+    else if (gpsAlt>9000 && sampleStatus == NEG_TARGET) // TODO change 9000 to Config.heights[2]
     {
         getSample(2);
     }
-    else if (gpsAlt>20000 && sampleStatus == 3) // TODO change 20000 to Config.heights[3]
+    else if (gpsAlt>20000 && sampleStatus == ABOVE_STORM) // TODO change 20000 to Config.heights[3]
     {
         getSample(3);
     }
@@ -106,19 +108,31 @@ void getSample(int sampleNum)
 {
     // Get that sample
     // We can use Config.solenoidPins[sampleNum] 
-
+    // 
 }
 
+bool hasTimePassed(int &oldTime, int period)
+{
+    currentTime = millis();
+    if(currentTime - oldTime > period)
+    {
+        oldTime = currentTime;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 void setup() {
     Serial.begin(9600);
+    stateMachineTime = millis();
 }
 
 void loop() {
-    /* // Testing Purposes
-    gpsAlt = 600;
-    decideState();
-    Serial.println(flightState);
-    */
-   
+    if(hasTimePassed(stateMachineTime, 1500))
+    {
+        decideState();
+    }
 }
