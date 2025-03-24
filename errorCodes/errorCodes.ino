@@ -17,7 +17,7 @@ enum errorState
 
 errorState error;
 
-unsigned long startMillis;
+unsigned long beginMillis;
 
 void setup() {
    Serial.begin(9600);
@@ -27,47 +27,51 @@ void setup() {
 }
 
 void loop() {
- Serial.print("Checking.... ");
  
-  if (error == SD_ERROR){		//error 1 will be SD (all on)
-    Serial.println("SD failed! Why? idk go fix it.");
+  Switch(error){		//error 1 will be SD (all on)
+    case SD_ERROR:
     digitalWrite(tiny, HIGH);
     digitalWrite(smol, HIGH);
+    break;
     
-  } else if (error == GPS_ERROR){   //error 2 is GPS (1 on/off)
+    case GPS_ERROR:  //error 2 is GPS (1 on/off)
     Serial.println("Hey, your GPS is messed up!");
     digitalWrite(tiny, HIGH);
     digitalWrite(smol, LOW);
+    break;
     
-  } else if (error == BMP_ERROR){   //BMP (other on/off)
+    case BMP_ERROR:   //BMP (other on/off)
     Serial.println("BMP not found.");
     digitalWrite(tiny, LOW);
     digitalWrite(smol, HIGH);
+    break;
     
-  } else if (error == NO2_ERROR){  // NO2 (tiny blinks and smol on)
+   case NO2_ERROR:  // NO2 (tiny blinks and smol on)
     Serial.println("NO2 (the problem child) is not functioning");
     digitalWrite(smol, HIGH);
     blinker = tiny;
     Blinky();
+    breal;
     
-  } else if (error == HUMID_ERROR){  //Humidity (smol blinks and tiny on)
+    case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
     Serial.println("Must be too dry bc humidty not detected.");
     digitalWrite(tiny, HIGH);
     blinker = smol;
     Blinky();
+    break;
      
-  } else if (error == O2_ERROR){   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
+    case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
     Serial.println("Apparently no oxygen found so idk how you are alive rn");
     digitalWrite(tiny, LOW);
     blinker = smol;
     Blinky();
-  } else{
+    break;
+      
+    default:
     Serial.println("lets go!");
     digitalWrite(tiny, LOW);
     digitalWrite(smol, LOW);
-    
   }
-    Serial.println(error);
 }  
     
 
@@ -75,10 +79,10 @@ void Blinky() {
   unsigned long currentMillis;
   
   currentMillis = millis();  //get the current "time" (actually the number of milliseconds since the program started)
-  if (currentMillis - startMillis >= period)  //test whether the period has elapsed
+  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
   {
     digitalWrite(blinker, !digitalRead(blinker));  //if so, change the state of the LED.  Uses a neat trick to change the state
-    startMillis = currentMillis;  //IMPORTANT to save the start time of the current LED state.
+    beginMillis = currentMillis;  //IMPORTANT to save the start time of the current LED state.
   } 
 }
  
