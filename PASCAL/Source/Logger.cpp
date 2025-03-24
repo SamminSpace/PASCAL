@@ -12,10 +12,8 @@ Logger::Logger(String fileNameToWrite) {
 }
 
 void Logger::init() {
-    while (!SD.begin(chipSelect)) {
-        Serial.println("Card failed, or not present");
-        delay(1000);
-        // TODO Add error codes            
+    if (!SD.begin(chipSelect)) {
+        error = SD_ERROR;   
     }
 }
 
