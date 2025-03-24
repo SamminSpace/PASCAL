@@ -9,9 +9,8 @@ void GPS::init() {
     // Optional debug statements are commented out
 
     // Initialization
-    while (!gps.begin()) {
-        // TODO Error codes
-        delay(1000);
+    if (!gps.begin()) {
+        error = GPS_ERROR;
     }
 
     // Updating settings
@@ -22,9 +21,10 @@ void GPS::init() {
     }
     gps.saveConfiguration();
 
-    while (gps.getSIV() < 3) {
-        delay(1000);
+    if (gps.getSIV() < 3) {
+        error = SD_ERROR;
         // TODO Error codes
+        //Do we want error if no lock? 
     }
 
 }
