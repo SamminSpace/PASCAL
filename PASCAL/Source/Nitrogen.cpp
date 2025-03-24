@@ -24,7 +24,7 @@ void NO2Sensor::init(float WEOffset, float AuxOffset, float sensitivity, float t
     this->tempMult = tempMult;
 
     if(!adc.init()){
-        // TODO Error codes
+       error = NO2_ERROR;
     }
 
     adc.setVoltageRange_mV(ADS1115_RANGE_6144);
