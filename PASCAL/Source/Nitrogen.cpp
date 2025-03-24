@@ -1,6 +1,6 @@
 
 
-#include "Nitrogen.h"
+#include "../Nitrogen.h"
 
 
 float NO2Sensor::ReadChannel(int channel) {

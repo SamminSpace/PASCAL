@@ -5,7 +5,7 @@
 // #include <Adafruit_BMP3XX.h>
 // #include "DFRobot_OxygenSensor.h"
 
-#include "Logger.h"
+#include "../Logger.h"
 
 Logger::Logger(String fileNameToWrite) {
     fileName = fileNameToWrite;

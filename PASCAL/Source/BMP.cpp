@@ -1,5 +1,5 @@
 
-#include "BMP.h"
+#include "../BMP.h"
 
 
 double* BMP::readBMP(float seaLevelPressure){
