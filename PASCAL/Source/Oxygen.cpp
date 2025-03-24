@@ -2,11 +2,9 @@
 #include "Oxygen.h"
 
 
-
 void OxygenSensor::init() {
-    while(!oxygen.begin(ADDRESS_3)){
-        delay(1000);
-        // TODO error codes
+    if(!oxygen.begin(ADDRESS_3)){
+        error = O2_ERROR;
     }
 }
 
