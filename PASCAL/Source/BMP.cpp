@@ -8,8 +8,7 @@ double* BMP::readBMP(float seaLevelPressure){
 }
 
 void BMP::init() {
-    while (!bmp.begin_I2C()) {
-        Serial.println("Could not find a valid BMP390 sensor, check wiring!");
-        delay(1000);
+    if (!bmp.begin_I2C()) {
+        error = BMP_ERROR;
     }
 }
