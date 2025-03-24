@@ -5,8 +5,7 @@
 
 void HumiditySensor::init() {
     if(!humidity.begin()){
-        delay(1000);
-        // TODO error codes
+        error = HUMID_ERROR;
     }
 }
 
