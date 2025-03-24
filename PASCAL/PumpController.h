@@ -1,6 +1,7 @@
-#pragma once
+#ifndef PUMPCONTROLLER_H
+#define PUMPCONTROLLER_H
 
-#include "Include/Time.h"
+#include "Time.h"
 #include "Config.h"
 
 // Describes the samples as to whether they are running, done, or not started yet
@@ -56,10 +57,10 @@ public:
     PumpController(Config config);
 
     // Initializes the pins to be output
-    void init();
+    errorState init();
 
     // Runs the sampling
     void sampling(double altitude);
 
 };
-
+#endif

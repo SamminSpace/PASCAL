@@ -1,9 +1,11 @@
-#pragma once
+#ifndef GPS_H
+#define GPS_H
 
 #include "Time.h"
 #include <optional>
 // #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h> 
+#include "Config.h"
 
 // A UTC time struct for data organization
 struct UTCTime {
@@ -19,20 +21,28 @@ struct UTCTime {
 class GPS {
 private: 
     SFE_UBLOX_GNSS gps;
-    //Timer tick = Timer(1000); // ms
     int gnssAddress = 0x42;
 
 public:
 
     // Initializes the GPS (auto-called by the constructor)
-    void init();
+    errorState init();
 
-    // Returns an optional position in the form of an array [altitude, longitude, latitude]
-    std::optional<double[3]> getPosition();
+    // Returns the altitude
+    double getAltitude();
 
-    std::optional<UTCTime> getUTCTime();
+    // Returns the longitude
+    double getLongitude();
+
+    // Returns the latitude
+    double getLatitude();
+
+    // Returns the UTC time
+    UTCTime getUTCTime();
 
     // Returns the number of satellites locked onto 
-    std::optional<int> getSIV();
+    int getSIV();
 
 };
+
+#endif

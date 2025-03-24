@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TIME_H
+#define TIME_H
 
 class Stopwatch {
 protected:
@@ -30,3 +31,6 @@ public:
     unsigned long timeRemaining();
     void setEndTime(unsigned long newEndTime);
 };
+
+
+#endif

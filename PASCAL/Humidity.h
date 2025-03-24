@@ -1,3 +1,7 @@
+#ifndef HUMIDITY_H
+#define HUMIDITY_H
+#include "Config.h"
+
 
 class HumiditySensor {
 private:
@@ -10,9 +14,10 @@ private:
 public:
 
     // Initializes the humid sensor
-    void init();
+    errorState init();
 
     // Reads from the humid sensor
     float getWetness();
 
 };
+#endif

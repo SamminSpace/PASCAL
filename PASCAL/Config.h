@@ -1,4 +1,5 @@
-
+#ifndef CONFIG_H
+#define CONFIG_H
 // Keeps the linker from compiling this a bunch of times
 #pragma once
 
@@ -7,6 +8,16 @@
 #include <SPI.h>
 #include <Adafruit_BMP3XX.h>
 #include "DFRobot_OxygenSensor.h"
+
+enum errorState {
+  NO_ERROR,
+  SD_ERROR,
+  GPS_ERROR,
+  BMP_ERROR,
+  NO2_ERROR,
+  HUMID_ERROR,
+  O2_ERROR
+};
 
 // The I2C pins that all of the things will use
 struct I2C {
@@ -76,3 +87,4 @@ struct Config {
 };
 
 
+#endif

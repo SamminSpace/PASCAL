@@ -1,6 +1,8 @@
-#pragma once
+#ifndef BMP_H
+#define BMP_H
 #include <Adafruit_BMP3XX.h>
 
+#include "Config.h"
 
 class BMP {
 private:
@@ -9,11 +11,12 @@ private:
 public:
 
     // Initializes the BMP 
-    void init();
+    errorState init();
 
-    // Reads from the BMP and returns an array of the readings:
-    // [temperature, pressure, altitude] (*C, hPa, m)
-    double* readBMP(float seaLevelPressure);
+    // Reads from the BMP and the reading
+    double getAltitude(float seaLevelPressure);
+    double getPressure();
+    double getTemperature();
 
 };
-
+#endif

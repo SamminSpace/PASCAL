@@ -1,6 +1,8 @@
-#pragma once
+#ifndef LOGGER_H
+#define LOGGER_H
 
 // #include <string>
+#include "Config.h"
 
 
 class Logger {
@@ -16,7 +18,7 @@ public:
     Logger(String fileNameToWrite);
 
     // Initializes the logger
-    void init();
+    errorState init(int chipSelect);
 
     // Writes something to the logger
     void write(String toWrite);
@@ -25,3 +27,4 @@ public:
     void writeHead();
     
 };
+#endif

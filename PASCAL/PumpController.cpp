@@ -1,6 +1,7 @@
 
-#include "../PumpController.h"
-
+#include "PumpController.h"
+#include "Config.h"
+#include <Arduino.h>
 
 // Ensure that there are 6 solenoid pins
 PumpController::PumpController(Config config) {
@@ -29,12 +30,13 @@ PumpController::PumpController(Config config) {
 
 }
 
-void PumpController::init() {
+errorState PumpController::init() {
     for (int i = 0; i < sizeof(solenoidPins)/sizeof(solenoidPins[0]); i++) {
         pinMode(solenoidPins[i], OUTPUT);
     }
     pinMode(exhaustPin, OUTPUT);
     pinMode(pumpPin, OUTPUT);
+    return NO_ERROR;
 }
 
 void PumpController::sampling(double altitude) {
