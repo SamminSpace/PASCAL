@@ -10,7 +10,7 @@ void HumiditySensor::init() {
     }
 }
 
-float humiditySensor::getWetness() {
+float HumiditySensor::getWetness() {
     return hdc.readTemperatureHumidityOnDemand(temp, RH, TRIGGERMODE_LP0);
 
 
