@@ -22,10 +22,24 @@
 
 // Declaring all of the sensors and things
 Config config;  
-// GPS gps; 
-Logger sd = Logger((String("TestingWetness"))); 
-BMP bmp;
-HumiditySensor hum;
+GPS gps; 
+Logger sd = Logger((String("Testing")));  //probelms in config idk why
+
+//Error Code Stuff
+errorState error;
+unsigned long beginMillis;
+int period = 500;
+void Blinky() {
+  unsigned long currentMillis;
+  
+  currentMillis = millis();  //get the current "time" (actually the number of milliseconds since the program started)
+  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
+  {
+    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));  //if so, change the state of the LED.  Uses a neat trick to change the state
+    beginMillis = currentMillis;  //IMPORTANT to save the start time of the current LED state.
+  } 
+}
+
 
 void setup() {
 
@@ -41,49 +55,64 @@ void setup() {
     while (!Serial);
 
     // Initializing the things
-    Serial.println("Beginning init");
-    // if (gps.init() != NO_ERROR) {
-    //   Serial.println("There was an error with the gps");
-    // }
-    if (sd.init(config.pins.chipSelect) != NO_ERROR) {
-      Serial.println("There was an error with the SD");
-    }
-    if (bmp.init() != NO_ERROR) {
-      Serial.println("There was an error with the bmp");
-    }
-    if (hum.init() != NO_ERROR) {
-      Serial.println("There was an error with the bmp");
-    }
+    // gps.init();
+    sd.init(config.pins.chipSelect);
 
+    pinMode(LED_BUILTIN, OUTPUT);
 
-
-
-
-
-
+    switch(error){		//error 1 will be SD (all on)
+    case SD_ERROR:
+    digitalWrite(config.pins.tiny, HIGH);
+    digitalWrite(config.pins.smol, HIGH);
+    break;
+    
+    case GPS_ERROR:  //error 2 is GPS (1 on/off)
+    sd.write("Hey, your GPS is messed up!");
+    digitalWrite(config.pins.tiny, HIGH);
+    digitalWrite(config.pins.smol, LOW);
+    break;
+    
+    case BMP_ERROR:   //BMP (other on/off)
+    sd.write("BMP not found.");
+    digitalWrite(config.pins.tiny, LOW);
+    digitalWrite(config.pins.smol, HIGH);
+    break;
+    
+   case NO2_ERROR:  // NO2 (tiny blinks and smol on)
+    sd.write("NO2 (the problem child) is not functioning");
+    digitalWrite(config.pins.smol, HIGH);
+    config.pins.blinker = config.pins.tiny;
+    Blinky();
+    break;
+    
+    case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
+    sd.write("Must be too dry bc humidty not detected.");
+    digitalWrite(config.pins.tiny, HIGH);
+    config.pins.blinker = config.pins.smol;
+    Blinky();
+    break;
+     
+    case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
+    sd.write("Apparently no oxygen found so idk how you are alive rn");
+    digitalWrite(config.pins.tiny, LOW);
+    config.pins.blinker = config.pins.smol;
+    Blinky();
+    break;
+      
+    default:
+    sd.write("lets go!");
+    digitalWrite(config.pins.tiny, LOW);
+    digitalWrite(config.pins.smol, LOW);
+  }
 }
 
 void loop() {
 
   // First of all, testing the SD logging
-  String position = String("");
+  sd.write("Watermelon");
+  Serial.write("Printing out watermelon");
 
-  // position += String(gps.getAltitude()) + String(" meters altitude\n");
-  // position += String(gps.getLatitude()) + String(" latitude\n");
-  // position += String(gps.getLongitude()) + String(" longitude\n");
-  // position += String(gps.getSIV()) + String(" sattelites locked\n");
-  // position += String(gps.getUTCTime().hour) + String(" hours ") + gps.getUTCTime().minute + String(" minutes\n");
-
-  // position += String("\nAltitude: ") + String(bmp.getAltitude(config.seaLevelPressureHPa));
-  // position += String("\nPressure: ") + String(bmp.getPressure());
-  // position += String("\nTemperature: ") + String(bmp.getTemperature());
-
-  position += String("\nWetness: ") + String(hum.getWetness());
-
-
-  sd.write(position);
-  Serial.println(position.c_str());
-  delay(1000);
+  digitalWrite(LED_BUILTIN, HIGH)
 
 }
 
