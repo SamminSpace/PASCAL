@@ -76,7 +76,7 @@ struct Config {
     
 
     // The constants, generally shouldn't be touched
-    float seaLevelPressureHPa = 1013.25;
+    float seaLevelPressure = 1013.25;
 
     // Constants for the nitrogen sensor
     float WEOffset = 225;
@@ -84,6 +84,10 @@ struct Config {
     float sensitivity = 0.225; //in mV/ppb
     // Technically depends on the temperature, so not constant
     int temperatureMultiplier = 1.3; 
+
+    String payload = "PASCAL";
+    unsigned long missionTime;
+    int packetNumber;
 
 };
 

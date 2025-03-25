@@ -23,6 +23,9 @@
 // Declaring all of the sensors and things
 Config config;  
 GPS gps; 
+HumiditySensor humidity;
+BMP bmp;
+OxygenSensor oxygen;
 Logger sd = Logger((String("Testing")));  //probelms in config idk why
 
 //Error Code Stuff
@@ -55,7 +58,10 @@ void setup() {
     while (!Serial);
 
     // Initializing the things
-    // gps.init();
+    gps.init();
+    humidity.turnOn();
+    bmp.init();
+    oxygen.init();
     sd.init(config.pins.chipSelect);
 
     pinMode(LED_BUILTIN, OUTPUT);
@@ -104,15 +110,65 @@ void setup() {
     digitalWrite(config.pins.tiny, LOW);
     digitalWrite(config.pins.smol, LOW);
   }
+
+  // missing: nitrogen, WE, Aux, BMP Alt
+  sd.write("Payload, Payload State, Packet Number, Mission Time, SIV, "
+    "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
+    "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");
+
+
 }
 
 void loop() {
 
+  /* I am very well aware that these are not needed 
+  ` but if someone wanted to run individual sensors
+    they are all here! See? I'm so smart
+  */
+
+  // bmp.getAltitude();
+  bmp.getPressure();
+  bmp.getTemperature();
+
+  gps.getSIV();
+  gps.getAltitude();
+  gps.getLatitude();
+  gps.getLongitude();
+  gps.getUTCTime();
+
+  oxygen.getOxygen();
+
+  humidity.getHotness();
+  humidity.getWetness();
+ 
   // First of all, testing the SD logging
-  sd.write("Watermelon");
-  Serial.write("Printing out watermelon");
+  sd.write("Pick a sesnor");
+  Serial.write("Printing out whatevere");
 
   digitalWrite(LED_BUILTIN, HIGH);
 
 }
 
+// woah a function that actually puts all the data in a massive string
+void logData (){ //future reference: nitrogen, Aux, WE
+  config.missionTime = millis();
+
+  String Data = config.payload + ", " + 
+  "PAYLOAD STATE" + ", " + 
+  String(config.packetNumber) + ", " + 
+  String(config.missionTime) + ", " + 
+  String(gps.getSIV()) + ", " + 
+  "GPS TIME" + ", " + 
+  String(oxygen.getOxygen()) + ", " + 
+  String(humidity.getHotness()) + ", " + 
+  String(humidity.getWetness()) + ", " + 
+  String(bmp.getTemperature()) + ", " + 
+  String(bmp.getPressure()) + ", " + 
+  String(gps.getAltitude()); + ", " + 
+  String(gps.getLatitude()) + ", " + 
+  String(gps.getLongitude());
+  
+  sd.write(Data);
+
+  config.packetNumber ++;
+}
