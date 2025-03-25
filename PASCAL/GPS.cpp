@@ -15,7 +15,7 @@ errorState GPS::init() {
   Wire.begin();
 
     // Initialization
-    while (!gps.begin()) {
+    if (!gps.begin()) {
       Serial.println("GPS ERROR");
       return GPS_ERROR;
     }

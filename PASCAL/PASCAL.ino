@@ -112,7 +112,7 @@ void loop() {
   sd.write("Watermelon");
   Serial.write("Printing out watermelon");
 
-  digitalWrite(LED_BUILTIN, HIGH)
+  digitalWrite(LED_BUILTIN, HIGH);
 
 }
 
