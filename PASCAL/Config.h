@@ -45,6 +45,7 @@ struct Pins {
     // These are the LEDs on the board, for debugging
     int tiny = 7;
     int smol = 8;
+    int blinker;
 
     // For SPI I think
     int chipSelect = 17;
