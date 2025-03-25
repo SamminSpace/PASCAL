@@ -28,7 +28,7 @@ errorState GPS::init() {
     }
     gps.saveConfiguration();
 
-    while (gps.getSIV() < 3) {
+    if (gps.getSIV() < 3) {
         Serial.println("Waiting for lock, SIV: "); Serial.println(gps.getSIV());
         delay(1);
         // error = SD_ERROR;

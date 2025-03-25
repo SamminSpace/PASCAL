@@ -19,6 +19,15 @@ enum errorState {
   O2_ERROR
 };
 
+enum State 
+{
+    INITIALIZATION = 0,
+  	STANDBY = 1,
+    PASSIVE = 2,
+    DESCENT = 3,
+    LANDED = 4
+};
+
 // The I2C pins that all of the things will use
 struct I2C {
     int sda = 12;

@@ -40,9 +40,10 @@ errorState PumpController::init() {
 }
 
 void PumpController::sampling(double altitude) {
-
+ 
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
-        if (samples[i].sampleAltitude > altitude && samples[i].state != SampleState::COMPLETE) {
+        if (samples[i].sampleAltitude < altitude && samples[i].state != SampleState::COMPLETE) {
+            Serial.println(samples[i].sampleAltitude);
             takeSample(i);
         }
     }

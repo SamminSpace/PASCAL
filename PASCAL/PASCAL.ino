@@ -18,6 +18,7 @@
 #include "GPS.h"
 #include "Config.h"
 #include "Humidity.h"
+#include "PumpController.h"
 
 
 // Declaring all of the sensors and things
@@ -26,7 +27,8 @@ GPS gps;
 HumiditySensor humidity;
 BMP bmp;
 OxygenSensor oxygen;
-Logger sd = Logger((String("Testing")));  //probelms in config idk why
+PumpController controller(config);
+Logger sd = Logger((String("NoOxygen")));  //probelms in config idk why
 
 //Error Code Stuff
 errorState error;
@@ -35,14 +37,21 @@ int period = 500;
 void Blinky() {
   unsigned long currentMillis;
   
-  currentMillis = millis();  //get the current "time" (actually the number of milliseconds since the program started)
+  currentMillis = millis();  
   if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
   {
-    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));  //if so, change the state of the LED.  Uses a neat trick to change the state
-    beginMillis = currentMillis;  //IMPORTANT to save the start time of the current LED state.
+    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
+    digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinkingh likes go blink
+    beginMillis = currentMillis;  //save the start time of the current LED state.
   } 
 }
 
+//payload state stuff
+State flightState;
+int velocityInterval = 0;   // for check going down
+int rangeInterval = 0;      // for check if stay constant
+int thirtyTimer = 10000;  // TEMP 10 SEC for 30 minute timer(1800000 miliseconds)initializing period
+float oldAlt; //needed to check going up or down
 
 void setup() {
 
@@ -53,16 +62,31 @@ void setup() {
     // TODO finish the flight portion
 
     // Setting up the chipselect
-    // pinMode(config.pins.chipSelect, OUTPUT);
+    pinMode(config.pins.chipSelect, OUTPUT);
+    pinMode(config.pins.tiny, OUTPUT);
+    pinMode(config.pins.smol, OUTPUT);
+    pinMode(config.pins.brightsLEDS, OUTPUT);
+
+    controller.init();
+    
+    /*pinMode(config.pins.solenoidPins[0], OUTPUT);
+    pinMode(config.pins.solenoidPins[1], OUTPUT);
+    pinMode(config.pins.solenoidPins[2], OUTPUT);
+    pinMode(config.pins.solenoidPins[3], OUTPUT);
+    pinMode(config.pins.solenoidPins[4], OUTPUT);
+    pinMode(config.pins.solenoidPins[5], OUTPUT);
+    pinMode(config.pins.exhaustPin, OUTPUT);
+    pinMode(config.pins.pumpPin, OUTPUT); */
+
     Serial.begin(9600);
-    while (!Serial);
+    while (!Serial); //will need removal
 
     // Initializing the things
-    gps.init();
-    humidity.turnOn();
-    bmp.init();
-    oxygen.init();
-    sd.init(config.pins.chipSelect);
+    // error = humidity.turnOn();
+    // error = oxygen.init();
+    // error = bmp.init();
+    // error = gps.init();
+    // error = sd.init(config.pins.chipSelect);
 
     pinMode(LED_BUILTIN, OUTPUT);
 
@@ -84,7 +108,7 @@ void setup() {
     digitalWrite(config.pins.smol, HIGH);
     break;
     
-   case NO2_ERROR:  // NO2 (tiny blinks and smol on)
+    case NO2_ERROR:  // NO2 (tiny blinks and smol on)
     sd.write("NO2 (the problem child) is not functioning");
     digitalWrite(config.pins.smol, HIGH);
     config.pins.blinker = config.pins.tiny;
@@ -120,32 +144,29 @@ void setup() {
 }
 
 void loop() {
+  // Blinky(); //must be in loop
 
-  /* I am very well aware that these are not needed 
-  ` but if someone wanted to run individual sensors
-    they are all here! See? I'm so smart
-  */
-
-  // bmp.getAltitude();
-  bmp.getPressure();
-  bmp.getTemperature();
-
-  gps.getSIV();
-  gps.getAltitude();
-  gps.getLatitude();
-  gps.getLongitude();
-  gps.getUTCTime();
-
-  oxygen.getOxygen();
-
-  humidity.getHotness();
-  humidity.getWetness();
  
-  // First of all, testing the SD logging
-  sd.write("Pick a sesnor");
-  Serial.write("Printing out whatevere");
 
-  digitalWrite(LED_BUILTIN, HIGH);
+  //digitalWrite(config.pins.solenoidPins[0], HIGH);
+
+  
+  /*Serial.print("   SOLENOID 1: ");
+  Serial.println(digitalRead(config.pins.solenoidPins[0]));
+  Serial.print("   SOLENOID 2: ");
+  Serial.println(digitalRead(config.pins.solenoidPins[1]));
+  Serial.print("   PUMP: ");
+  Serial.println(digitalRead(config.pins.pumpPin));
+  Serial.print("   EXHAUST: ");
+  Serial.println(digitalRead(config.pins.exhaustPin)); */
+
+  controller.sampling(1100);
+ 
+
+  //Deciding what payload state in 
+  //Need to put the timer part in here
+  //decideState();
+
 
 }
 
@@ -154,11 +175,12 @@ void logData (){ //future reference: nitrogen, Aux, WE
   config.missionTime = millis();
 
   String Data = config.payload + ", " + 
-  "PAYLOAD STATE" + ", " + 
+  flightState + ", " + 
   String(config.packetNumber) + ", " + 
   String(config.missionTime) + ", " + 
   String(gps.getSIV()) + ", " + 
-  "GPS TIME" + ", " + 
+  "UTC TIME" + ", " +
+  
   String(oxygen.getOxygen()) + ", " + 
   String(humidity.getHotness()) + ", " + 
   String(humidity.getWetness()) + ", " + 
@@ -172,3 +194,79 @@ void logData (){ //future reference: nitrogen, Aux, WE
 
   config.packetNumber ++;
 }
+
+
+
+void decideState() // TODO Run this every 15 seconds
+{
+  
+    if ((config.missionTime > thirtyTimer) && (flightState == INITIALIZATION))
+    {
+        flightState = STANDBY;
+    
+    }
+    else if ((gps.getAltitude() > 500) && (flightState == STANDBY))
+    {
+        flightState = PASSIVE;
+      	
+    }
+    else if ((isItDescending()) && (flightState == PASSIVE))
+    {
+        flightState = DESCENT;
+      
+      
+    }
+    else if ((isConstantAlt()) && (flightState == DESCENT) && gps.getAltitude() < 20)
+    {
+        flightState = LANDED;
+  
+    }
+}
+
+
+bool isItDescending()
+{
+    if (gps.getAltitude() < oldAlt)
+    {
+        velocityInterval++;
+        Serial.println("going down?!!!!");
+
+        if (velocityInterval > 4) // If it descends for over a minute it changes the state to Descending
+        {
+            velocityInterval = 0; 
+            Serial.println("HEY IT SHOULD BE TRUE FOR NEGATIVE VELOCOTY!");
+            return true;
+        }
+    }
+    else
+    {
+        velocityInterval = 0;
+        return false;
+    }
+    return false;
+}
+
+
+
+bool isConstantAlt()
+{
+  if ((gps.getAltitude() < oldAlt + 20) && (gps.getAltitude() > oldAlt - 20)) //Checks if payload stationary
+    {
+        rangeInterval++;
+        if (rangeInterval > 4) // If it stays within +-50 Meters for over a minute it changes the state to Landed
+        {
+            rangeInterval = 0; 
+            return true;
+        }
+    }
+    else
+    {
+        rangeInterval = 0;
+        return false;
+    }
+
+    return false;
+ }
+
+
+
