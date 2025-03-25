@@ -23,9 +23,22 @@ private:
     SFE_UBLOX_GNSS gps;
     int gnssAddress = 0x42;
 
+    // The timer 
+    Timer tick = Timer(1000);
+
+    // Cached data 
+    UTCTime time;
+    double altitude;
+    double longitude;
+    double latitude;
+    int siv;
+
+    // An internal function to update the data when the tick is hit
+    void update();
+
 public:
 
-    // Initializes the GPS (auto-called by the constructor)
+    // Initializes the GPS
     errorState init();
 
     // Returns the altitude

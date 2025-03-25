@@ -17,26 +17,46 @@
 #include "Oxygen.h"
 #include "GPS.h"
 #include "Config.h"
+#include "Humidity.h"
 
 
 // Declaring all of the sensors and things
 Config config;  
-GPS gps; 
-Logger sd = Logger((String("Testing")));  //probelms in config idk why
+// GPS gps; 
+Logger sd = Logger((String("TestingWetness"))); 
+BMP bmp;
+HumiditySensor hum;
 
 void setup() {
-    Serial.begin(9600);
+
+  Wire.setSDA(12);
+  Wire.setSCL(13);
+  Wire.begin();
 
     // TODO finish the flight portion
 
     // Setting up the chipselect
     // pinMode(config.pins.chipSelect, OUTPUT);
+    Serial.begin(9600);
+    while (!Serial);
 
     // Initializing the things
-    // gps.init();
-    sd.init(config.pins.chipSelect);
+    Serial.println("Beginning init");
+    // if (gps.init() != NO_ERROR) {
+    //   Serial.println("There was an error with the gps");
+    // }
+    if (sd.init(config.pins.chipSelect) != NO_ERROR) {
+      Serial.println("There was an error with the SD");
+    }
+    if (bmp.init() != NO_ERROR) {
+      Serial.println("There was an error with the bmp");
+    }
+    if (hum.init() != NO_ERROR) {
+      Serial.println("There was an error with the bmp");
+    }
 
-    pinMode(LED_BUILTIN, OUTPUT);
+
+
 
 
 
@@ -46,10 +66,24 @@ void setup() {
 void loop() {
 
   // First of all, testing the SD logging
-  sd.write("Watermelon");
-  Serial.write("Printing out watermelon");
+  String position = String("");
 
-  digitalWrite(LED_BUILTIN, HIGH)
+  // position += String(gps.getAltitude()) + String(" meters altitude\n");
+  // position += String(gps.getLatitude()) + String(" latitude\n");
+  // position += String(gps.getLongitude()) + String(" longitude\n");
+  // position += String(gps.getSIV()) + String(" sattelites locked\n");
+  // position += String(gps.getUTCTime().hour) + String(" hours ") + gps.getUTCTime().minute + String(" minutes\n");
+
+  // position += String("\nAltitude: ") + String(bmp.getAltitude(config.seaLevelPressureHPa));
+  // position += String("\nPressure: ") + String(bmp.getPressure());
+  // position += String("\nTemperature: ") + String(bmp.getTemperature());
+
+  position += String("\nWetness: ") + String(hum.getWetness());
+
+
+  sd.write(position);
+  Serial.println(position.c_str());
+  delay(1000);
 
 }
 

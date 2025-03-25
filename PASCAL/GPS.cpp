@@ -7,10 +7,16 @@
 
 
 errorState GPS::init() {
+  Serial.println("Beginning init function for GPS");
     // Optional debug statements are commented out
 
+  Wire.setSDA(12);
+  Wire.setSCL(13);
+  Wire.begin();
+
     // Initialization
-    if (!gps.begin()) {
+    while (!gps.begin()) {
+      Serial.println("GPS ERROR");
       return GPS_ERROR;
     }
 
@@ -23,6 +29,8 @@ errorState GPS::init() {
     gps.saveConfiguration();
 
     while (gps.getSIV() < 3) {
+        Serial.println("Waiting for lock, SIV: "); Serial.println(gps.getSIV());
+        delay(1);
         // error = SD_ERROR;
         // TODO Error codes
         //Do we want error if no lock? 
@@ -31,30 +39,60 @@ errorState GPS::init() {
   return NO_ERROR;
 }
 
+void GPS::update() {
+
+  // Checking for new data
+  gps.checkUblox();
+  if (gps.getPVT() == false) {
+      Serial.println("Nothing new");
+      return;  
+  }
+
+  altitude = gps.getAltitude() / 1000.0;
+  longitude = ((double)gps.getLongitude()) * pow(10, -7);
+  latitude = ((double)gps.getLatitude()) * pow(10, -7);
+  siv = gps.getSIV();
+  time.year = (int)gps.getYear();
+  time.month = (int)gps.getMonth();
+  time.day = (int)gps.getDay();
+  time.hour = (int)gps.getHour();
+  time.minute = (int)gps.getMinute();
+  time.second = (int)gps.getSecond();
+
+  tick.reset();
+}
+
 double GPS::getAltitude() {
-    return gps.getAltitude() / 1000.0;
+  if (tick.isComplete()) {
+    update();
+  }
+  return altitude;
 }
 
 double GPS::getLongitude() {
-    return ((double)gps.getLongitude()) * pow(10, -7);
+  if (tick.isComplete()) {
+    update();
+  }
+    return longitude;
 }
 
 double GPS::getLatitude() {
-    return ((double)gps.getLatitude()) * pow(10, -7);
+  if (tick.isComplete()) {
+    update();
+  }
+    return latitude;
 }
 
 UTCTime GPS::getUTCTime() {
-    UTCTime toReturn;
-    toReturn.year = (int)gps.getYear();
-    toReturn.month = (int)gps.getMonth();
-    toReturn.day = (int)gps.getDay();
-    toReturn.hour = (int)gps.getHour();
-    toReturn.minute = (int)gps.getMinute();
-    toReturn.second = (int)gps.getSecond();
-    toReturn.hour = (int)gps.getHour();
-    return toReturn;
+  if (tick.isComplete()) {
+    update();
+  }
+    return time;
 }
 
 int GPS::getSIV() {
-    return gps.getSIV();
+  if (tick.isComplete()) {
+    update();
+  }
+    return siv;
 }

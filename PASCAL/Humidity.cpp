@@ -4,15 +4,23 @@
 #include "Humidity.h"
 
 
-errorState HumiditySensor::init() {
+errorState HumiditySensor::turnOn() {
     if(!humidity.begin()){
         return HUMID_ERROR;
     }
     return NO_ERROR;
 }
 
+void HumiditySensor::update() {
+  humidity.readTemperatureHumidityOnDemand(temp, RH, TRIGGERMODE_LP0);
+}
+
 float HumiditySensor::getWetness() {
-    return humidity.readTemperatureHumidityOnDemand(temp, RH, TRIGGERMODE_LP0);
+    update();
+    return RH; 
+}
 
-
+float HumiditySensor::getHotness() {
+    update();
+    return temp; 
 }
