@@ -53,6 +53,7 @@ int rangeInterval = 0;      // for check if stay constant
 int thirtyTimer = 10000;  // TEMP 10 SEC for 30 minute timer(1800000 miliseconds)initializing period
 float oldAlt; //needed to check going up or down
 
+
 void setup() {
 
   Wire.setSDA(12);
@@ -138,8 +139,7 @@ void setup() {
   // missing: nitrogen, WE, Aux, BMP Alt
   sd.write("Payload, Payload State, Packet Number, Mission Time, SIV, "
     "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
-    "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");
-
+    "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");  
 
 }
 
@@ -149,8 +149,7 @@ void loop() {
  
 
   //digitalWrite(config.pins.solenoidPins[0], HIGH);
-
-  
+  decideState();
   /*Serial.print("   SOLENOID 1: ");
   Serial.println(digitalRead(config.pins.solenoidPins[0]));
   Serial.print("   SOLENOID 2: ");
@@ -159,8 +158,10 @@ void loop() {
   Serial.println(digitalRead(config.pins.pumpPin));
   Serial.print("   EXHAUST: ");
   Serial.println(digitalRead(config.pins.exhaustPin)); */
-
-  controller.sampling(1100);
+  if(flightState == PASSIVE){
+    controller.sampling(gps.getAltitude());
+  }
+  
  
 
   //Deciding what payload state in 
@@ -200,7 +201,7 @@ void logData (){ //future reference: nitrogen, Aux, WE
 void decideState() // TODO Run this every 15 seconds
 {
   
-    if ((config.missionTime > thirtyTimer) && (flightState == INITIALIZATION))
+    if ((config.missionTime > thirtyTimer) && (flightState == INITIALIZATION)) // No timer yet so removing it for testing + not needed for this flight
     {
         flightState = STANDBY;
     

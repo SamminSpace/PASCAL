@@ -43,7 +43,6 @@ void PumpController::sampling(double altitude) {
  
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
         if (samples[i].sampleAltitude < altitude && samples[i].state != SampleState::COMPLETE) {
-            Serial.println(samples[i].sampleAltitude);
             takeSample(i);
         }
     }
@@ -60,8 +59,11 @@ void PumpController::takeSample(int sampleNum) {
         samples[sampleNum].state = SampleState::ACTIVE;
         digitalWrite(solenoidPins[sampleNum], HIGH);
         digitalWrite(pumpPin, HIGH);
+        digitalWrite(exhaustPin, LOW);
 
     } else if (samples[sampleNum].state == SampleState::ACTIVE) {
+        Serial.print(samples[sampleNum].sampleNum);
+        Serial.println(" is active");
         // Checking to see if the sample is done
         if (samples[sampleNum].sampleTimer.isComplete()) {
             // CLOSE SOLENOID AND UPDATE STATE TO COMPLETED
@@ -70,12 +72,11 @@ void PumpController::takeSample(int sampleNum) {
             digitalWrite(solenoidPins[sampleNum], LOW);
 
             // Switching to cleaning if there are no other samples active
-            for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
+            /*for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
                 if (samples[i].state == SampleState::ACTIVE && i != sampleNum) {
                     samples[i].state = SampleState::COMPLETE;
-                    return;
                 }
-            }
+            }*/
 
             // Setting it to cleaning
             samples[sampleNum].sampleTimer.reset();
