@@ -24,6 +24,7 @@
 // Declaring all of the sensors and things
 Config config;  
 GPS gps; 
+UTCTime utctime;
 HumiditySensor humidity;
 BMP bmp;
 OxygenSensor oxygen;
@@ -42,6 +43,8 @@ void Blinky() {
   {
     digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
     digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinkingh likes go blink
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    Serial.println("Did something");
     beginMillis = currentMillis;  //save the start time of the current LED state.
   } 
 }
@@ -80,7 +83,11 @@ void setup() {
     pinMode(config.pins.pumpPin, OUTPUT); */
 
     Serial.begin(9600);
-    while (!Serial); //will need removal
+
+    // Remove for final flight code
+    while (!Serial) {
+      if (millis() > 2000) break;
+    }; 
 
     // Initializing the things
     // error = humidity.turnOn();
@@ -131,7 +138,7 @@ void setup() {
     break;
       
     default:
-    sd.write("lets go!");
+    //sd.write("lets go!");
     digitalWrite(config.pins.tiny, LOW);
     digitalWrite(config.pins.smol, LOW);
   }
@@ -141,32 +148,20 @@ void setup() {
     "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
     "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");  
 
+  flightState = INITIALIZATION;
 }
 
 void loop() {
-  // Blinky(); //must be in loop
+   Blinky(); //must be in loop
 
- 
 
-  //digitalWrite(config.pins.solenoidPins[0], HIGH);
-  decideState();
-  /*Serial.print("   SOLENOID 1: ");
-  Serial.println(digitalRead(config.pins.solenoidPins[0]));
-  Serial.print("   SOLENOID 2: ");
-  Serial.println(digitalRead(config.pins.solenoidPins[1]));
-  Serial.print("   PUMP: ");
-  Serial.println(digitalRead(config.pins.pumpPin));
-  Serial.print("   EXHAUST: ");
-  Serial.println(digitalRead(config.pins.exhaustPin)); */
+  /*logData();
+  //Need to put the timer part in here
+  //decideState();
   if(flightState == PASSIVE){
     controller.sampling(gps.getAltitude());
   }
-  
- 
-
-  //Deciding what payload state in 
-  //Need to put the timer part in here
-  //decideState();
+    */ 
 
 
 }
@@ -180,8 +175,8 @@ void logData (){ //future reference: nitrogen, Aux, WE
   String(config.packetNumber) + ", " + 
   String(config.missionTime) + ", " + 
   String(gps.getSIV()) + ", " + 
-  "UTC TIME" + ", " +
-  
+  String(utctime.year) + ", " + String(utctime.month) + ", " + String(utctime.day) + ", " + 
+  String(utctime.hour) + ", " + String(utctime.minute) + ", " + String(utctime.second) + ", " + 
   String(oxygen.getOxygen()) + ", " + 
   String(humidity.getHotness()) + ", " + 
   String(humidity.getWetness()) + ", " + 
