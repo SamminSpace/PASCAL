@@ -4,6 +4,7 @@
 #include "Time.h"
 #include "Config.h"
 
+
 // Describes the samples as to whether they are running, done, or not started yet
 enum class SampleState {
     NOT_STARTED,    // 0
@@ -58,6 +59,8 @@ public:
 
     // Initializes the pins to be output
     errorState init();
+
+    String sampleStatus = "PASSIVE";
 
     // Runs the sampling
     void sampling(double altitude);

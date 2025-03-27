@@ -136,7 +136,7 @@ void setup() {
   }
 
   // missing: nitrogen, WE, Aux,
-  sd.write("Payload, Payload State, Packet Number, Mission Time, SIV, "
+  sd.write("Payload, Payload State, Sampling, Packet Number, Mission Time, SIV, "
     "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
     "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");  
 
@@ -144,9 +144,10 @@ void setup() {
 }
 
 void loop() {
-   Blinky(); //must be in loop
+  Blinky(); //must be in loop
 
-   logData();
+  /*
+  logData();
     
   if (tock.isComplete()) {
     decideState();
@@ -155,7 +156,7 @@ void loop() {
 
   if(flightState == PASSIVE){
     controller.sampling(gps.getAltitude());
-  }
+  } */
 
 }
 
@@ -165,6 +166,7 @@ void logData (){ //future reference: nitrogen, Aux, WE
 
   String Data = config.payload + ", " + 
   flightState + ", " + 
+  controller.sampleStatus + ", " +
   String(config.packetNumber) + ", " + 
   String(config.missionTime) + ", " + 
   String(gps.getSIV()) + ", " + 

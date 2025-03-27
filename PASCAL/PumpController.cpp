@@ -99,4 +99,11 @@ void PumpController::takeSample(int sampleNum) {
         }
     }
 
+    if(samples[sampleNum].state == SampleState::ACTIVE){
+      sampleStatus = "SAMPLING";
+    }
+    else{
+      sampleStatus = "PASSIVE";
+    }
+
 }
