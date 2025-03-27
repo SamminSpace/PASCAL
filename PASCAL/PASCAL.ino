@@ -29,6 +29,7 @@ HumiditySensor humidity;
 BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
+Timer tock = Timer(15000); //15 second timer
 Logger sd = Logger((String("NoOxygen")));  //probelms in config idk why
 
 //Error Code Stuff
@@ -44,7 +45,6 @@ void Blinky() {
     digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
     digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinkingh likes go blink
     digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-    Serial.println("Did something");
     beginMillis = currentMillis;  //save the start time of the current LED state.
   } 
 }
@@ -63,25 +63,15 @@ void setup() {
   Wire.setSCL(13);
   Wire.begin();
 
-    // TODO finish the flight portion
+   // Setting up the chipselect
+  pinMode(config.pins.chipSelect, OUTPUT);
+  pinMode(config.pins.tiny, OUTPUT);
+  pinMode(config.pins.smol, OUTPUT);
+  pinMode(config.pins.brightsLEDS, OUTPUT);
 
-    // Setting up the chipselect
-    pinMode(config.pins.chipSelect, OUTPUT);
-    pinMode(config.pins.tiny, OUTPUT);
-    pinMode(config.pins.smol, OUTPUT);
-    pinMode(config.pins.brightsLEDS, OUTPUT);
-
-    controller.init();
+  // Initializes solenoids/motor
+  controller.init();
     
-    /*pinMode(config.pins.solenoidPins[0], OUTPUT);
-    pinMode(config.pins.solenoidPins[1], OUTPUT);
-    pinMode(config.pins.solenoidPins[2], OUTPUT);
-    pinMode(config.pins.solenoidPins[3], OUTPUT);
-    pinMode(config.pins.solenoidPins[4], OUTPUT);
-    pinMode(config.pins.solenoidPins[5], OUTPUT);
-    pinMode(config.pins.exhaustPin, OUTPUT);
-    pinMode(config.pins.pumpPin, OUTPUT); */
-
     Serial.begin(9600);
 
     // Remove for final flight code
@@ -102,6 +92,7 @@ void setup() {
     case SD_ERROR:
     digitalWrite(config.pins.tiny, HIGH);
     digitalWrite(config.pins.smol, HIGH);
+    config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
     break;
     
     case GPS_ERROR:  //error 2 is GPS (1 on/off)
@@ -141,9 +132,10 @@ void setup() {
     //sd.write("lets go!");
     digitalWrite(config.pins.tiny, LOW);
     digitalWrite(config.pins.smol, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
   }
 
-  // missing: nitrogen, WE, Aux, BMP Alt
+  // missing: nitrogen, WE, Aux,
   sd.write("Payload, Payload State, Packet Number, Mission Time, SIV, "
     "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
     "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");  
@@ -154,15 +146,16 @@ void setup() {
 void loop() {
    Blinky(); //must be in loop
 
+   logData();
+    
+  if (tock.isComplete()) {
+    decideState();
+    tock.reset();
+  }
 
-  /*logData();
-  //Need to put the timer part in here
-  //decideState();
   if(flightState == PASSIVE){
     controller.sampling(gps.getAltitude());
   }
-    */ 
-
 
 }
 
