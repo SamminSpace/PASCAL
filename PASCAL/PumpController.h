@@ -60,10 +60,11 @@ public:
     // Initializes the pins to be output
     errorState init();
 
-    String sampleStatus = "PASSIVE";
-
     // Runs the sampling
     void sampling(double altitude);
+
+    // A function to get the status
+    String getSampleStatus();
 
 };
 #endif

@@ -166,7 +166,7 @@ void logData (){ //future reference: nitrogen, Aux, WE
 
   String Data = config.payload + ", " + 
   flightState + ", " + 
-  controller.sampleStatus + ", " +
+  controller.getSampleStatus() + ", " +
   String(config.packetNumber) + ", " + 
   String(config.missionTime) + ", " + 
   String(gps.getSIV()) + ", " + 

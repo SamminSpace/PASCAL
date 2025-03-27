@@ -99,11 +99,16 @@ void PumpController::takeSample(int sampleNum) {
         }
     }
 
-    if(samples[sampleNum].state == SampleState::ACTIVE){
-      sampleStatus = "SAMPLING";
-    }
-    else{
-      sampleStatus = "PASSIVE";
-    }
+}
 
+// A getter for the sample status 
+String PumpController::getSampleStatus() {
+  for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
+      if(samples[i].state == SampleState::ACTIVE){
+        return "SAMPLING";
+      } else if (samples[i].state == SampleState::CLEANING) {
+        return "CLEANING";
+      }
+  }
+  return "PASSIVE";
 }
