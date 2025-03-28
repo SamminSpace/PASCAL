@@ -28,9 +28,9 @@ private:
 
     // Cached data 
     UTCTime time;
-    double altitude;
-    double longitude;
-    double latitude;
+    double altitude = -1.0;
+    double longitude = -1.0;
+    double latitude = -1.0;
     int siv;
 
     // An internal function to update the data when the tick is hit
@@ -42,13 +42,13 @@ public:
     errorState init();
 
     // Returns the altitude
-    double getAltitude();
+    float getAltitude();
 
     // Returns the longitude
-    double getLongitude();
+    float getLongitude();
 
     // Returns the latitude
-    double getLatitude();
+    float getLatitude();
 
     // Returns the UTC time
     UTCTime getUTCTime();

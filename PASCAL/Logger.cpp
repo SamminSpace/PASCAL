@@ -19,21 +19,20 @@ errorState Logger::init(int chipSelect) {
 }
 
 void Logger::write(String toWrite) {
-    File dataFile = SD.open(fileName + ".txt", FILE_WRITE);
+    File dataFile = SD.open(fileName + ".csv", FILE_WRITE);
     if (dataFile) {
         dataFile.println(toWrite);
         dataFile.close();
     } 
 }
 
-void Logger::writeHead() {
-    String openingString = " ________  ________  ________  ________  ________  ___          \n|\\   __  \\|\\   __  \\|\\   ____\\|\\   ____\\|\\   __  \\|\\  \\         \n\\ \\  \\|\\  \\ \\  \\|\\  \\ \\  \\___|\\ \\  \\___|\\ \\  \\|\\  \\ \\ \\        \n \\ \\   ____\\ \\   __  \\ \\_____  \\ \\  \\    \\ \\   __  \\ \\  \\       \n  \\ \\  \\___|\\ \\  \\ \\  \\|____|\\  \\ \\  \\____\\ \\  \\ \\  \\ \\  \\____  \n   \\ \\__\\    \\ \\__\\ \\__\\____\\_\\  \\ \\_______\\ \\__\\ \\__\\ \\_______\\n    \\|__|     \\|__|\\|__|\\_________\\|_______|\\|__|\\|__|\\|_______|\n                       \\|_________|                             \n                                                                                                                                \n";
 
-    File dataFile = SD.open(fileName + ".txt", FILE_WRITE);
-    if (dataFile) {
-        dataFile.println(openingString);
-        dataFile.close();
-    } 
+// void Logger::writeHead() {
+//     File dataFile = SD.open(fileName + ".csv", FILE_WRITE);
+//     if (dataFile) {
+//         dataFile.println(openingString);
+//         dataFile.close();
+//     } 
 
 
-}
+// } 

@@ -19,9 +19,11 @@ PumpController::PumpController(Config config) {
         Sample toAdd;
 
         // Updating the sample to match what we want
-        // The default timer is 3 seconds and it starts not started, so we don't specify them
         toAdd.sampleAltitude = config.samplingAltitudes[i];
         toAdd.sampleNum = i;
+
+        // creating the timers for each
+        toAdd.sampleTimer = Timer(config.sampleLengths[i]);       
 
         // Adding it to the array
         samples[i] = toAdd;
@@ -53,51 +55,94 @@ void PumpController::sampling(double altitude) {
 void PumpController::takeSample(int sampleNum) {
 
     if (samples[sampleNum].state == SampleState::NOT_STARTED) {
+
+        // Cleaning it out first
+
+        // Opening the exhaust
+        digitalWrite(exhaustPin, HIGH);
+        Serial.println("EXHAUSR OPEN");
+
+        // Running the pump
+        digitalWrite(pumpPin, HIGH);
+        Serial.println("PUMP ON");
+
+        // Starting the timer for cleaning
+        samples[sampleNum].sampleTimer.reset();
+        Serial.println("Sample Timer Started");
+
+        // Setting the state
+        samples[sampleNum].state = SampleState::CLEANING;
+        Serial.println("CLEANING");
+
         
         // Starting the sample
-        samples[sampleNum].sampleTimer.reset();
-        samples[sampleNum].state = SampleState::ACTIVE;
-        digitalWrite(solenoidPins[sampleNum], HIGH);
-        digitalWrite(pumpPin, HIGH);
-        digitalWrite(exhaustPin, LOW);
+        // samples[sampleNum].sampleTimer.reset();
+        // samples[sampleNum].state = SampleState::ACTIVE;
+        // digitalWrite(solenoidPins[sampleNum], HIGH);
+        // digitalWrite(pumpPin, HIGH);
+        // digitalWrite(exhaustPin, LOW);
 
-    } else if (samples[sampleNum].state == SampleState::ACTIVE) {
-        Serial.print(samples[sampleNum].sampleNum);
-        Serial.println(" is active");
-        // Checking to see if the sample is done
-        if (samples[sampleNum].sampleTimer.isComplete()) {
-            // CLOSE SOLENOID AND UPDATE STATE TO COMPLETED
-            // Ending the sample
-            digitalWrite(pumpPin, LOW);
-            digitalWrite(solenoidPins[sampleNum], LOW);
-
-            // Switching to cleaning if there are no other samples active
-            /*for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
-                if (samples[i].state == SampleState::ACTIVE && i != sampleNum) {
-                    samples[i].state = SampleState::COMPLETE;
-                }
-            }*/
-
-            // Setting it to cleaning
-            samples[sampleNum].sampleTimer.reset();
-            samples[sampleNum].state = SampleState::CLEANING;
-        
-            // Beginning the cleaning
-            digitalWrite(exhaustPin, LOW);
-
-        }
     } else if (samples[sampleNum].state == SampleState::CLEANING) {
         if (samples[sampleNum].sampleTimer.isComplete()) {
             
             // Stopping the cleaning
-            digitalWrite(pumpPin, LOW);
-            digitalWrite(exhaustPin, HIGH);
+            digitalWrite(exhaustPin, LOW);
+            Serial.println("EXHAUST CLOSE");
 
-            // Telling the sample that it is done.
+            // Waiting like a half second
+            samples[sampleNum].cleaningTimer.reset();
+            Serial.println("Cleaning Timer Started");
+
+            // Changing the state
+            samples[sampleNum].state = SampleState::ACTIVE;
+            Serial.println("ACTIVE");
+
+            // Starting the sample timer to show that it needs to run next iteration
+            samples[sampleNum].sampleTimer.reset();
+
+        } 
+    }
+    
+    else if (samples[sampleNum].state == SampleState::ACTIVE) {
+
+        // Checking to see if it is time to start sampling
+        if (samples[sampleNum].cleaningTimer.isComplete()) {
+
+          // Closing the exhaust
+          digitalWrite(exhaustPin, LOW);
+          Serial.println("EXHAUST CLOSED STILL");
+
+          // Checking to see if we are done sampling
+          if (samples[sampleNum].sampleTimer.isComplete()) {
+
+            // Close the sample
+            digitalWrite(solenoidPins[sampleNum], LOW);
+            Serial.println("SOLENOID CLOSED ");
+
+
+            // Turning off the pump
+            digitalWrite(pumpPin, LOW);
+            Serial.println("PUMP OFF");
+
+
+            // Changing state
             samples[sampleNum].state = SampleState::COMPLETE;
+            Serial.println("COMPLETE");
+
+          } else if (!samples[sampleNum].hasSampleStarted) {
+              // Starting the sample
+            samples[sampleNum].sampleTimer.reset();
+            samples[sampleNum].hasSampleStarted = true;
+            Serial.println("Seal finsihed; Starting Sample");
+            digitalWrite(solenoidPins[sampleNum], HIGH);
+            Serial.println("SOLENOID ON");
+
+
+          }
 
         }
-    }
+
+    } 
 
 }
 

@@ -3,10 +3,12 @@
 #include "Config.h"
 
 
-double BMP::getTemperature(){
+double BMP::getTemperature(float seaLevelPressure){
+  bmp.readAltitude(seaLevelPressure);
   return bmp.temperature;
 }
-double BMP::getPressure(){
+double BMP::getPressure(float seaLevelPressure){
+  bmp.readAltitude(seaLevelPressure);
   return bmp.pressure / 100.0;
 }
 double BMP::getAltitude(float seaLevelPressure){

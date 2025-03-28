@@ -73,11 +73,20 @@ struct Config {
     float samplingAltitudes[6] = {
         1000.0,
         5000.0,
-        5000.0,
         9000.0,
-        9000.0,
-        20000.0
+        13000.0,
+        17000.0,
+        21000.0
     }; // m
+
+    float sampleLengths[6] = {
+      3500.0,
+      3500.0,
+      3500.0,
+      3500.0,
+      3500.0,
+      3500.0
+    }; // ms
 
     
     Pins pins;
@@ -95,7 +104,7 @@ struct Config {
     int temperatureMultiplier = 1.3; 
 
     String payload = "PASCAL";
-    unsigned long missionTime;
+    double missionTime;
     int packetNumber;
 
 };

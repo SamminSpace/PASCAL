@@ -5,18 +5,18 @@
 #include "Config.h"
 
 class BMP {
-private:
-    Adafruit_BMP3XX bmp;
+
 
 public:
+    Adafruit_BMP3XX bmp;
 
     // Initializes the BMP 
     errorState init();
 
     // Reads from the BMP and the reading
     double getAltitude(float seaLevelPressure);
-    double getPressure();
-    double getTemperature();
+    double getPressure(float seaLevelPressure);
+    double getTemperature(float seaLevelPressure);
 
 };
 #endif

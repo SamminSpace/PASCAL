@@ -1,5 +1,5 @@
 
-
+#define SEALEVELPRESSURE_HPA (1013.25)
 // This is what Arduino IDE will actually be running
 // Everything else will be imported
 
@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("NoOxygen")));  //probelms in config idk why
+Logger sd = Logger((String("FRR")));  //probelms in config idk why
 
 //Error Code Stuff
 errorState error;
@@ -44,7 +44,6 @@ void Blinky() {
   {
     digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
     digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinkingh likes go blink
-    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
     beginMillis = currentMillis;  //save the start time of the current LED state.
   } 
 }
@@ -53,9 +52,9 @@ void Blinky() {
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 10000;  // TEMP 10 SEC for 30 minute timer(1800000 miliseconds)initializing period
+int thirtyTimer = 3;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
 float oldAlt; //needed to check going up or down
-
+int altitude = 0;
 
 void setup() {
 
@@ -74,95 +73,59 @@ void setup() {
     
     Serial.begin(9600);
 
-    // Remove for final flight code
-    while (!Serial) {
-      if (millis() > 2000) break;
-    }; 
 
     // Initializing the things
-    // error = humidity.turnOn();
-    // error = oxygen.init();
-    // error = bmp.init();
-    // error = gps.init();
-    // error = sd.init(config.pins.chipSelect);
+    checkErrors(humidity.turnOn());
+    //checkErrors(oxygen.init());
+    checkErrors(bmp.init());
+    checkErrors(gps.init());
+    checkErrors(sd.init(config.pins.chipSelect));
 
     pinMode(LED_BUILTIN, OUTPUT);
 
-    switch(error){		//error 1 will be SD (all on)
-    case SD_ERROR:
-    digitalWrite(config.pins.tiny, HIGH);
-    digitalWrite(config.pins.smol, HIGH);
-    config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
-    break;
     
-    case GPS_ERROR:  //error 2 is GPS (1 on/off)
-    sd.write("Hey, your GPS is messed up!");
-    digitalWrite(config.pins.tiny, HIGH);
-    digitalWrite(config.pins.smol, LOW);
-    break;
-    
-    case BMP_ERROR:   //BMP (other on/off)
-    sd.write("BMP not found.");
-    digitalWrite(config.pins.tiny, LOW);
-    digitalWrite(config.pins.smol, HIGH);
-    break;
-    
-    case NO2_ERROR:  // NO2 (tiny blinks and smol on)
-    sd.write("NO2 (the problem child) is not functioning");
-    digitalWrite(config.pins.smol, HIGH);
-    config.pins.blinker = config.pins.tiny;
-    Blinky();
-    break;
-    
-    case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
-    sd.write("Must be too dry bc humidty not detected.");
-    digitalWrite(config.pins.tiny, HIGH);
-    config.pins.blinker = config.pins.smol;
-    Blinky();
-    break;
-     
-    case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
-    sd.write("Apparently no oxygen found so idk how you are alive rn");
-    digitalWrite(config.pins.tiny, LOW);
-    config.pins.blinker = config.pins.smol;
-    Blinky();
-    break;
-      
-    default:
-    //sd.write("lets go!");
-    digitalWrite(config.pins.tiny, LOW);
-    digitalWrite(config.pins.smol, LOW);
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
 
   // missing: nitrogen, WE, Aux,
   sd.write("Payload, Payload State, Sampling, Packet Number, Mission Time, SIV, "
-    "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
-    "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");  
+    "UTC Time, Other Temp, Humidity, "
+    "Temperature, Pressure, GPS Altitude, GPS Latitude, GPS Longitude"); 
 
   flightState = INITIALIZATION;
 }
 
 void loop() {
-  Blinky(); //must be in loop
+  Blinky(); //must be in loop 
 
-  /*
+  // Updating the altitude 
+//  altitude = gps.getAltitude();
+  altitude = millis() / 10;
+
+
+  if (gps.getSIV() >= 3){
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+  //Serial.println(altitude);
+  //Serial.println(flightState);
+
   logData();
-    
+
+  
   if (tock.isComplete()) {
     decideState();
     tock.reset();
   }
 
   if(flightState == PASSIVE){
-    controller.sampling(gps.getAltitude());
-  } */
+    controller.sampling(altitude);
+  } 
 
 }
 
 // woah a function that actually puts all the data in a massive string
 void logData (){ //future reference: nitrogen, Aux, WE
-  config.missionTime = millis();
+  config.missionTime = millis() / 1000.00;
+
+  utctime = gps.getUTCTime();
 
   String Data = config.payload + ", " + 
   flightState + ", " + 
@@ -170,17 +133,18 @@ void logData (){ //future reference: nitrogen, Aux, WE
   String(config.packetNumber) + ", " + 
   String(config.missionTime) + ", " + 
   String(gps.getSIV()) + ", " + 
-  String(utctime.year) + ", " + String(utctime.month) + ", " + String(utctime.day) + ", " + 
-  String(utctime.hour) + ", " + String(utctime.minute) + ", " + String(utctime.second) + ", " + 
-  String(oxygen.getOxygen()) + ", " + 
+  String(utctime.year) + ":" + String(utctime.month) + ":" + String(utctime.day) + ":" + 
+  String(utctime.hour) + ":" + String(utctime.minute) + ":" + String(utctime.second) + ", " + 
+  //String(oxygen.getOxygen()) + ", " + 
   String(humidity.getHotness()) + ", " + 
   String(humidity.getWetness()) + ", " + 
-  String(bmp.getTemperature()) + ", " + 
-  String(bmp.getPressure()) + ", " + 
-  String(gps.getAltitude()); + ", " + 
+  String(bmp.getTemperature(SEALEVELPRESSURE_HPA)) + ", " + 
+  String(bmp.getPressure(SEALEVELPRESSURE_HPA)) + ", " + 
+  String(altitude) + ", " + 
   String(gps.getLatitude()) + ", " + 
   String(gps.getLongitude());
   
+
   sd.write(Data);
 
   config.packetNumber ++;
@@ -196,7 +160,7 @@ void decideState() // TODO Run this every 15 seconds
         flightState = STANDBY;
     
     }
-    else if ((gps.getAltitude() > 500) && (flightState == STANDBY))
+    else if ((altitude > 500) && (flightState == STANDBY))
     {
         flightState = PASSIVE;
       	
@@ -207,22 +171,24 @@ void decideState() // TODO Run this every 15 seconds
       
       
     }
-    else if ((isConstantAlt()) && (flightState == DESCENT) && gps.getAltitude() < 20)
-    {
+    else if ((isConstantAlt()) && (flightState == DESCENT) && altitude < 500){
+    
         flightState = LANDED;
   
     }
+
+    oldAlt = altitude;
 }
 
 
 bool isItDescending()
 {
-    if (gps.getAltitude() < oldAlt)
+    if (altitude  < oldAlt)
     {
         velocityInterval++;
         Serial.println("going down?!!!!");
 
-        if (velocityInterval > 4) // If it descends for over a minute it changes the state to Descending
+        if (velocityInterval > 3) // If it descends for over a minute it changes the state to Descending
         {
             velocityInterval = 0; 
             Serial.println("HEY IT SHOULD BE TRUE FOR NEGATIVE VELOCOTY!");
@@ -241,10 +207,10 @@ bool isItDescending()
 
 bool isConstantAlt()
 {
-  if ((gps.getAltitude() < oldAlt + 20) && (gps.getAltitude() > oldAlt - 20)) //Checks if payload stationary
+  if ((altitude  < oldAlt + 20) && (altitude  > oldAlt - 20)) //Checks if payload stationary
     {
         rangeInterval++;
-        if (rangeInterval > 4) // If it stays within +-50 Meters for over a minute it changes the state to Landed
+        if (rangeInterval > 3) // If it stays within +-50 Meters for over a minute it changes the state to Landed
         {
             rangeInterval = 0; 
             return true;
@@ -260,4 +226,58 @@ bool isConstantAlt()
  }
 
 
+// Function to check for errors and display error codes
+void checkErrors(errorState error) {
+
+
+switch(error){		
+    case SD_ERROR:  //error 1 will be SD (all on)
+      config.pins.blinker = LED_BUILTIN; 
+        //digitalWrite(config.pins.tiny, HIGH);
+        //digitalWrite(config.pins.smol, HIGH);
+        //config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
+        break;
+    
+    case GPS_ERROR:  //error 2 is GPS (1 on/off)
+        sd.write("Hey, your GPS is messed up!");
+        //digitalWrite(config.pins.tiny, HIGH);
+        //digitalWrite(config.pins.smol, LOW);
+        break;
+    
+    case BMP_ERROR:   //BMP (other on/off)
+        sd.write("BMP not found.");
+        //digitalWrite(config.pins.tiny, LOW);
+        //digitalWrite(config.pins.smol, HIGH);
+        break;
+    
+    case NO2_ERROR:  // NO2 (tiny blinks and smol on)
+        sd.write("NO2 (the problem child) is not functioning");
+        //digitalWrite(config.pins.smol, HIGH);
+        //config.pins.blinker = config.pins.tiny;
+        // Blinky();
+        break;
+    
+    case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
+        sd.write("Must be too dry bc humidty not detected.");
+        //digitalWrite(config.pins.tiny, HIGH);
+        //config.pins.blinker = config.pins.smol;
+        // Blinky();
+        break;
+     
+    case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
+        sd.write("Apparently no oxygen found so idk how you are alive rn");
+        //digitalWrite(config.pins.tiny, LOW);
+        //config.pins.blinker = config.pins.smol;
+        // Blinky();
+        break;
+      
+    default:
+        //sd.write("lets go!");
+        //digitalWrite(config.pins.tiny, LOW);
+        //digitalWrite(config.pins.smol, LOW);
+        digitalWrite(LED_BUILTIN, LOW);
+  }
+
+
+}
 

@@ -23,10 +23,16 @@ struct Sample {
     long sampleAltitude;
 
     // How long the sample will run
-    Timer sampleTimer = Timer(3000);
+    Timer sampleTimer = Timer(1000);
+
+    // The cleaning timer, defaults to half a second
+    Timer cleaningTimer = Timer(500);
 
     // The sample ID, AKA the index in the array
     int sampleNum;
+
+    // Whether the sample has started. Duh
+    bool hasSampleStarted = false;
 
     // ! Honestly it might be wise to add a solenoid pin here to make it even more readable
 

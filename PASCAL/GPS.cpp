@@ -30,10 +30,7 @@ errorState GPS::init() {
 
     if (gps.getSIV() < 3) {
         Serial.println("Waiting for lock, SIV: "); Serial.println(gps.getSIV());
-        delay(1);
-        // error = SD_ERROR;
-        // TODO Error codes
-        //Do we want error if no lock? 
+        
     }
 
   return NO_ERROR;
@@ -42,41 +39,40 @@ errorState GPS::init() {
 void GPS::update() {
 
   // Checking for new data
-  gps.checkUblox();
-  if (gps.getPVT() == false) {
-      Serial.println("Nothing new");
-      return;  
-  }
-
-  altitude = gps.getAltitude() / 1000.0;
-  longitude = ((double)gps.getLongitude()) * pow(10, -7);
-  latitude = ((double)gps.getLatitude()) * pow(10, -7);
+  //gps.checkUblox();
+  // if (gps.getPVT() == false) {
+  //     //Serial.println("Nothing new");
+  //     return;  
+  // }
   siv = gps.getSIV();
+  altitude = gps.getAltitude() / 1000.0;
+  longitude = (gps.getLongitude()) * pow(10, -7);
+  latitude = (gps.getLatitude()) * pow(10, -7);
   time.year = (int)gps.getYear();
   time.month = (int)gps.getMonth();
   time.day = (int)gps.getDay();
   time.hour = (int)gps.getHour();
   time.minute = (int)gps.getMinute();
   time.second = (int)gps.getSecond();
-
+  
   tick.reset();
 }
 
-double GPS::getAltitude() {
+float GPS::getAltitude() {
   if (tick.isComplete()) {
     update();
   }
   return altitude;
 }
 
-double GPS::getLongitude() {
+float GPS::getLongitude() {
   if (tick.isComplete()) {
     update();
   }
     return longitude;
 }
 
-double GPS::getLatitude() {
+float GPS::getLatitude() {
   if (tick.isComplete()) {
     update();
   }
@@ -87,7 +83,7 @@ UTCTime GPS::getUTCTime() {
   if (tick.isComplete()) {
     update();
   }
-    return time;
+  return time;
 }
 
 int GPS::getSIV() {
