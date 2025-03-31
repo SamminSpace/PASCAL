@@ -31,7 +31,7 @@ Outreach Day March 28th, 2025
 ## Next Flight
 FFR: April 11th
 
-Night Flight April 12th
+Night Flight: April 12th
 
 
 ## For More Information...
