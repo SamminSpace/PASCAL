@@ -9,20 +9,24 @@ This is the software...
 This is the best PASCAL software that you've ever seen!
 
 ## But what do it do?
-Right now, we are in the process of making the first iteration of the software, so it doesn't do anything really right now.
-
-<br>
-In the future, this code will control the PASCAL payload when it gets sent up into storms to measure the NOx released by lightning.
-This program will use a target altitude and take six measurements, two a set distance below the target, 2 at the target, and 2 a set distance above the target.
-The measurements will be taken by activating a pump and solenoid to fill bags with the surrounding air.
-
-## Where to in the future?
-
-In the future we plan to...
-- [ ] Get it working
-- [ ] Add a variable target altitude
-- [ ] Win
+This code, specifically the code in the `PASCAL` folder, controls the PASCAL UAH Space Hardware project. 
+PASCAL studies the air around lightning strikes, specifically the amount of NO2 and NOx in the air given off by lightning.
+As such, PASCAL needs to be able to sample the air at various altitudes during a thunderstorm, which is what this code controls.
 
 
+## Features
+- [ ] Scrubs, or cleans, the tubing with the pump before the sample is taken
+    - Works, but will be updated for better logic soon
+- [X] Sampling for a specified amount of time at variable altitudes
+- [ ] Error Codes
+    - Only very rudamentary ones at this point; on our payload we do not currently have LEDs to test with
+    - Hopefully will be updated by the next flight
+- [X] Controls flashing for external LEDs
+- [ ] Dry runs solenoids before flight
+    - Soon, we will have a checking sequence to ensure audibly that the solenoids for each sample are connected and working
+
+
+## For More Information...
+For more information, check out the Space Hardware Club's website [here](https://space.uah.edu/programs/balloonsat/pascal).
 
 
