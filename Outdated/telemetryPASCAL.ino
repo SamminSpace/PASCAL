@@ -1,13 +1,17 @@
 //telemrtey?
 #include <SD.h>
+#include <Wire.h>
+
 
 //data being collected
 unsigned long missionTime;
 String payloadState; 
 String payload = "PASCAL"; 
-int packetNumber = 0;
+int packetNumber = 0; 
 
 float nitrogen;
+float WE;
+float Aux;
 float oxyclean;
 float humidity;
 
@@ -19,17 +23,6 @@ float gpsAlt;
 float gpsLat;
 float gpsLong;
 String UTC; 
-
-//solenoid and motor pins
-int solenoid1 = 2;
-int solenoid2 = 3;
-int solenoid3 = 4;
-int solenoid4 = 5;
-int solenoid5 = 6;
-int solenoid6 = 9;
-int exhaustPin = 10;
-int motorPin = 1;
-
 
 //set pins AND CHECK THEM 
 const int _MISO = 4;
@@ -56,7 +49,7 @@ void setup() {
   //if file exists, then writes Header
   if (dataFile) {
     dataFile.println("Payload, Payload State, Packet Number Mission Time, "
-    "UTC Time, Nitrogen Concentration, Oxygen Concentration, Humidity, Altitude, "
+    "UTC Time, Nitrogen Concentration, Raw WE, Raw Aux, Oxygen Concentration, Humidity, Altitude, "
     "Temperature, Pressure, GPS Altitude, GPS Laitiude, GPS Longitude");
     dataFile.close();
     Serial.println("Wrote header.");
@@ -81,7 +74,7 @@ void logSD(){
 
   if (dataFile) {
     dataFile.println(payload + "," + payloadState + "," + packetNumber + 
-    "," + missionTime + "," + UTC + "," + nitrogen + "," + oxyclean + "," 
+    "," + missionTime + "," + UTC + "," + nitrogen + "," + WE + "," + Aux + "," + oxyclean + "," 
     + humidity + "," + altitude + "," + temperature + "," + pressure +
     gpsAlt + "," + gpsLat + "," + gpsLong);
     dataFile.close();
