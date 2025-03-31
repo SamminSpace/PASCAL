@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("FRR")));  //probelms in config idk why
+Logger sd = Logger((String("FirstFlight")));  //probelms in config idk why
 
 //Error Code Stuff
 errorState error;
@@ -97,8 +97,8 @@ void loop() {
   Blinky(); //must be in loop 
 
   // Updating the altitude 
-//  altitude = gps.getAltitude();
-  altitude = millis() / 10;
+  altitude = gps.getAltitude();
+  //altitude = millis() / 10;
 
 
   if (gps.getSIV() >= 3){
