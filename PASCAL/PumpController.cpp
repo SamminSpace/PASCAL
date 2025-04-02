@@ -60,28 +60,20 @@ void PumpController::takeSample(int sampleNum) {
 
         // Opening the exhaust
         digitalWrite(exhaustPin, HIGH);
-        Serial.println("EXHAUSR OPEN");
+        Serial.println("EXHAUST OPEN");
 
         // Running the pump
         digitalWrite(pumpPin, HIGH);
         Serial.println("PUMP ON");
 
         // Starting the timer for cleaning
-        samples[sampleNum].sampleTimer.reset();
+        samples[sampleNum].cleaningTimer.reset();
         Serial.println("Sample Timer Started");
 
         // Setting the state
         samples[sampleNum].state = SampleState::CLEANING;
         Serial.println("CLEANING");
-
         
-        // Starting the sample
-        // samples[sampleNum].sampleTimer.reset();
-        // samples[sampleNum].state = SampleState::ACTIVE;
-        // digitalWrite(solenoidPins[sampleNum], HIGH);
-        // digitalWrite(pumpPin, HIGH);
-        // digitalWrite(exhaustPin, LOW);
-
     } else if (samples[sampleNum].state == SampleState::CLEANING) {
         if (samples[sampleNum].sampleTimer.isComplete()) {
             
@@ -90,55 +82,46 @@ void PumpController::takeSample(int sampleNum) {
             Serial.println("EXHAUST CLOSE");
 
             // Waiting like a half second
-            samples[sampleNum].cleaningTimer.reset();
-            Serial.println("Cleaning Timer Started");
+            samples[sampleNum].sealingTimer.reset();
+            Serial.println("Sealing Timer Started");
 
             // Changing the state
-            samples[sampleNum].state = SampleState::ACTIVE;
-            Serial.println("ACTIVE");
-
-            // Starting the sample timer to show that it needs to run next iteration
-            samples[sampleNum].sampleTimer.reset();
+            samples[sampleNum].state = SampleState::SEALING;
+            Serial.println("SEALING");
 
         } 
-    }
-    
-    else if (samples[sampleNum].state == SampleState::ACTIVE) {
+    } else if (samples[sampleNum].state == SampleState::SEALING) {
 
-        // Checking to see if it is time to start sampling
+        // Checking if the thing has sealed yet
         if (samples[sampleNum].cleaningTimer.isComplete()) {
 
-          // Closing the exhaust
-          digitalWrite(exhaustPin, LOW);
-          Serial.println("EXHAUST CLOSED STILL");
+            Serial.println("Seal finsihed; Starting Sample");
 
-          // Checking to see if we are done sampling
-          if (samples[sampleNum].sampleTimer.isComplete()) {
+            // Beginning the sample            
+            digitalWrite(solenoidPins[sampleNum], HIGH);
+            samples[sampleNum].sampleTimer.reset();
+            samples[sampleNum].state = SampleState::ACTIVE;
 
-            // Close the sample
+            Serial.println("SOLENOID ON");
+
+        }
+    
+    } else if (samples[sampleNum].state == SampleState::ACTIVE) {
+
+        // Checking to see if it is time to start sampling
+        if (samples[sampleNum].sampleTimer.isComplete()) {
+
+            // Stopping the sample
             digitalWrite(solenoidPins[sampleNum], LOW);
             Serial.println("SOLENOID CLOSED ");
-
 
             // Turning off the pump
             digitalWrite(pumpPin, LOW);
             Serial.println("PUMP OFF");
 
-
             // Changing state
             samples[sampleNum].state = SampleState::COMPLETE;
             Serial.println("COMPLETE");
-
-          } else if (!samples[sampleNum].hasSampleStarted) {
-              // Starting the sample
-            samples[sampleNum].sampleTimer.reset();
-            samples[sampleNum].hasSampleStarted = true;
-            Serial.println("Seal finsihed; Starting Sample");
-            digitalWrite(solenoidPins[sampleNum], HIGH);
-            Serial.println("SOLENOID ON");
-
-
-          }
 
         }
 
@@ -153,6 +136,8 @@ String PumpController::getSampleStatus() {
         return "SAMPLING";
       } else if (samples[i].state == SampleState::CLEANING) {
         return "CLEANING";
+      } else if (samples[i].state == SampleState::SEALING) {
+        return "SEALING";
       }
   }
   return "PASSIVE";

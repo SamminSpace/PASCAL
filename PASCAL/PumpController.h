@@ -9,8 +9,9 @@
 enum class SampleState {
     NOT_STARTED,    // 0
     ACTIVE,         // 1
-    COMPLETE,       // 2
-    CLEANING        // 3
+    SEALING,        // 2
+    COMPLETE,       // 3
+    CLEANING        // 4
 };
 
 
@@ -25,14 +26,14 @@ struct Sample {
     // How long the sample will run
     Timer sampleTimer = Timer(1000);
 
+    // The sealing timer, defaults to a quarter of a second'
+    Timer sealingTimer = Timer(250);
+
     // The cleaning timer, defaults to half a second
     Timer cleaningTimer = Timer(500);
 
     // The sample ID, AKA the index in the array
     int sampleNum;
-
-    // Whether the sample has started. Duh
-    bool hasSampleStarted = false;
 
     // ! Honestly it might be wise to add a solenoid pin here to make it even more readable
 
