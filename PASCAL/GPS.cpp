@@ -5,6 +5,31 @@
 #include "GPS.h"
 #include "Config.h"
 
+// Global stuff so that we can pass in a non-class variable
+double lastLongitude;
+double lastAltitude;
+double lastLatitude;
+UTCTime mostRecentTime;
+int mostRecentSIV;
+
+
+// Function for callback so that we can make it update really quickly
+void pvtCallback(UBX_NAV_PVT_data_t *ubxDataStruct) {
+    lastAltitude = ubxDataStruct->height / 1000.0;
+    lastLatitude = ((double)ubxDataStruct->lat) * pow(10, -7);
+    lastLongitude = ((double)ubxDataStruct->lon) * pow(10, -7);
+  
+    mostRecentTime = {
+        (int)ubxDataStruct->year,
+        (int)ubxDataStruct->month,
+        (int)ubxDataStruct->day,
+        (int)ubxDataStruct->hour,
+        (int)ubxDataStruct->min,
+        (int)ubxDataStruct->sec,
+    };
+    mostRecentSIV = ubxDataStruct->numSV;
+}
+
 
 errorState GPS::init() {
   Serial.println("Beginning init function for GPS");
@@ -26,12 +51,9 @@ errorState GPS::init() {
     if (gps.setDynamicModel(DYN_MODEL_AIRBORNE4g) == false) {
         // TODO Error codes
     }
-    gps.saveConfiguration();
 
-    if (gps.getSIV() < 3) {
-        Serial.println("Waiting for lock, SIV: "); Serial.println(gps.getSIV());
-        
-    }
+    gps.saveConfiguration();
+    gps.setAutoPVTcallbackPtr(&pvtCallback);
 
   return NO_ERROR;
 }
@@ -58,30 +80,42 @@ void GPS::update() {
   tick.reset();
 }
 
+// Fetches data if there is any 
+void GPS::prefetchData() {
+    gps.checkUblox();
+    gps.checkCallbacks();
+    altitude = lastAltitude;
+    longitude = lastLongitude;
+    latitude = lastLatitude;
+    time = mostRecentTime;
+    siv = mostRecentSIV;
+    tick.reset();
+}
+
 float GPS::getAltitude() {
   if (tick.isComplete()) {
-    update();
+    prefetchData();
   }
   return altitude;
 }
 
 float GPS::getLongitude() {
   if (tick.isComplete()) {
-    update();
+    prefetchData();
   }
     return longitude;
 }
 
 float GPS::getLatitude() {
   if (tick.isComplete()) {
-    update();
+    prefetchData();
   }
     return latitude;
 }
 
 UTCTime GPS::getUTCTime() {
   if (tick.isComplete()) {
-    update();
+    prefetchData();
   }
   return time;
 }

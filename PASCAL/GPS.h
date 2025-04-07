@@ -56,6 +56,9 @@ public:
     // Returns the number of satellites locked onto 
     int getSIV();
 
+    // Gets the data from the callback function
+    void prefetchData();
+
 };
 
 #endif
