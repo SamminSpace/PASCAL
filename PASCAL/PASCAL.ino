@@ -52,7 +52,7 @@ void Blinky() {
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 3;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
+int thirtyTimer = 15;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -76,7 +76,7 @@ void setup() {
 
     // Initializing the things
     checkErrors(humidity.turnOn());
-    //checkErrors(oxygen.init());
+    checkErrors(oxygen.init());
     checkErrors(bmp.init());
     checkErrors(gps.init());
     checkErrors(sd.init(config.pins.chipSelect));
@@ -94,18 +94,18 @@ void setup() {
 }
 
 void loop() {
-  Blinky(); //must be in loop 
+  //Blinky(); //must be in loop 
 
   // Updating the altitude 
-  altitude = gps.getAltitude();
+  //altitude = gps.getAltitude();
   //altitude = millis() / 10;
 
-
+  /*
   if (gps.getSIV() >= 3){
     digitalWrite(LED_BUILTIN, HIGH);
   }
   //Serial.println(altitude);
-  //Serial.println(flightState);
+  //Serial.println(flightState); */
 
   logData();
 
@@ -115,7 +115,13 @@ void loop() {
     tock.reset();
   }
 
-  if(flightState == PASSIVE){
+  if(flightState == INITIALIZATION){
+    controller.pattern();
+  }  
+  else if (flightState == STANDBY){
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+  else if(flightState == PASSIVE){
     controller.sampling(altitude);
   } 
 
@@ -135,7 +141,7 @@ void logData (){ //future reference: nitrogen, Aux, WE
   String(gps.getSIV()) + ", " + 
   String(utctime.year) + ":" + String(utctime.month) + ":" + String(utctime.day) + ":" + 
   String(utctime.hour) + ":" + String(utctime.minute) + ":" + String(utctime.second) + ", " + 
-  //String(oxygen.getOxygen()) + ", " + 
+  String(oxygen.getOxygen()) + ", " + 
   String(humidity.getHotness()) + ", " + 
   String(humidity.getWetness()) + ", " + 
   String(bmp.getTemperature(SEALEVELPRESSURE_HPA)) + ", " + 

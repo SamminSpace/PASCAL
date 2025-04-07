@@ -44,30 +44,32 @@ errorState PumpController::init() {
 
 //Turns each solenoid on for 0.5 second and then closes
 void PumpController::pattern() {  
-    const int solenoidCount = 6;
-    if (patternDone) return;
 
-    if (runningSolenoid < solenoidCount && patternTimer.isComplete()) {
-        if (runningSolenoid > 0) {
-             digitalWrite(solenoidPins[runningSolenoid - 1], LOW); // turn off previous
-        }
+   if (!patternDone){ 
+   digitalWrite(solenoidPins[0], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[0], LOW);
+   digitalWrite(solenoidPins[1], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[1], LOW);
+   digitalWrite(solenoidPins[2], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[2], LOW);
+   digitalWrite(solenoidPins[3], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[3], LOW);
+   digitalWrite(solenoidPins[4], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[4], LOW);
+   digitalWrite(solenoidPins[5], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[5], LOW);
+   digitalWrite(exhaustPin, HIGH);
+   delay(500);
+   digitalWrite(exhaustPin, LOW);
+   patternDone = true;
+   }
 
-        digitalWrite(solenoidPins[runningSolenoid], HIGH); // turn on current
-        runningSolenoid++;
-        patternTimer.reset();
-     }
-
-    else if (runningSolenoid == solenoidCount && patternTimer.isComplete()) { 
-        digitalWrite(solenoidPins[runningSolenoid - 1], LOW); // turn off last solenoid
-        digitalWrite(exhaustPin, HIGH);     // exhuast pins on
-        runningSolenoid++;
-        patternTimer.reset();
-     }
-
-     else if (runningSolenoid > solenoidCount && patternTimer.isComplete()) {
-        digitalWrite(exhaustPin, LOW); //exhuast pins closes
-        patternDone = true;         // pattern is finished
-     }
 }
 
 

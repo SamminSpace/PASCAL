@@ -68,9 +68,6 @@ public:
 
     void pattern();
     bool patternDone = false;
-    int runningSolenoid = 0;    //keeps track of which have been opened
-    Timer patternTimer = Timer(500);  //Timer for intilization pattern, only half a second
-
 
     // Runs the sampling
     void sampling(double altitude);
