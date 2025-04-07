@@ -41,6 +41,36 @@ errorState PumpController::init() {
     return NO_ERROR;
 }
 
+
+//Turns each solenoid on for 0.5 second and then closes
+void PumpController::pattern() {  
+    const int solenoidCount = 6;
+    if (patternDone) return;
+
+    if (runningSolenoid < solenoidCount && patternTimer.isComplete()) {
+        if (runningSolenoid > 0) {
+             digitalWrite(solenoidPins[runningSolenoid - 1], LOW); // turn off previous
+        }
+
+        digitalWrite(solenoidPins[runningSolenoid], HIGH); // turn on current
+        runningSolenoid++;
+        patternTimer.reset();
+     }
+
+    else if (runningSolenoid == solenoidCount && patternTimer.isComplete()) { 
+        digitalWrite(solenoidPins[runningSolenoid - 1], LOW); // turn off last solenoid
+        digitalWrite(exhaustPin, HIGH);     // exhuast pins on
+        runningSolenoid++;
+        patternTimer.reset();
+     }
+
+     else if (runningSolenoid > solenoidCount && patternTimer.isComplete()) {
+        digitalWrite(exhaustPin, LOW); //exhuast pins closes
+        patternDone = true;         // pattern is finished
+     }
+}
+
+
 void PumpController::sampling(double altitude) {
  
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
