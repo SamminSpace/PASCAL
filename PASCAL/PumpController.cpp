@@ -68,14 +68,14 @@ void PumpController::takeSample(int sampleNum) {
 
         // Starting the timer for cleaning
         samples[sampleNum].cleaningTimer.reset();
-        Serial.println("Sample Timer Started");
+        Serial.println("Cleaning Timer Started");
 
         // Setting the state
         samples[sampleNum].state = SampleState::CLEANING;
         Serial.println("CLEANING");
         
     } else if (samples[sampleNum].state == SampleState::CLEANING) {
-        if (samples[sampleNum].sampleTimer.isComplete()) {
+        if (samples[sampleNum].cleaningTimer.isComplete()) {
             
             // Stopping the cleaning
             digitalWrite(exhaustPin, LOW);
@@ -93,7 +93,7 @@ void PumpController::takeSample(int sampleNum) {
     } else if (samples[sampleNum].state == SampleState::SEALING) {
 
         // Checking if the thing has sealed yet
-        if (samples[sampleNum].cleaningTimer.isComplete()) {
+        if (samples[sampleNum].sealingTimer.isComplete()) {
 
             Serial.println("Seal finsihed; Starting Sample");
 

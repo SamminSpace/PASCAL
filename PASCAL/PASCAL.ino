@@ -100,17 +100,18 @@ void loop() {
   if (gps.getSIV() >= 6){
     digitalWrite(LED_BUILTIN, HIGH);
     altitude = gps.getAltitude();
-    //altitude = millis() / 10;
+  
   }
   else {
     altitude = -1;
   }
-
-  //Serial.println(altitude);
-  //Serial.println(flightState);
+  
+  
 
   logData();
-
+  //altitude = millis() / 10;
+  //Serial.println(altitude);
+  //Serial.println(flightState);
   
   if (tock.isComplete()) {
     decideState();
