@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("FRR")));  //probelms in config idk why
+Logger sd = Logger((String("FirstFlight")));  //probelms in config idk why
 
 //Error Code Stuff
 errorState error;
@@ -52,7 +52,7 @@ void Blinky() {
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 3;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
+int thirtyTimer = 15;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -76,7 +76,7 @@ void setup() {
 
     // Initializing the things
     checkErrors(humidity.turnOn());
-    //checkErrors(oxygen.init());
+    checkErrors(oxygen.init());
     checkErrors(bmp.init());
     checkErrors(gps.init());
     checkErrors(sd.init(config.pins.chipSelect));
@@ -94,20 +94,18 @@ void setup() {
 }
 
 void loop() {
-  Blinky(); //must be in loop 
+  //Blinky(); //must be in loop 
+
 
    // Updating the altitude if lock 
   if (gps.getSIV() >= 6){
     digitalWrite(LED_BUILTIN, HIGH);
     altitude = gps.getAltitude();
-  
-  }
-  else {
+  } else {
     altitude = -1;
   }
   
-  
-
+ 
   logData();
   //altitude = millis() / 10;
   //Serial.println(altitude);
@@ -118,7 +116,13 @@ void loop() {
     tock.reset();
   }
 
-  if(flightState == PASSIVE){
+  if(flightState == INITIALIZATION){
+    controller.pattern();
+  }  
+  else if (flightState == STANDBY){
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+  else if(flightState == PASSIVE){
     controller.sampling(altitude);
   } 
 
@@ -138,7 +142,7 @@ void logData (){ //future reference: nitrogen, Aux, WE
   String(gps.getSIV()) + ", " + 
   String(utctime.year) + ":" + String(utctime.month) + ":" + String(utctime.day) + ":" + 
   String(utctime.hour) + ":" + String(utctime.minute) + ":" + String(utctime.second) + ", " + 
-  //String(oxygen.getOxygen()) + ", " + 
+  String(oxygen.getOxygen()) + ", " + 
   String(humidity.getHotness()) + ", " + 
   String(humidity.getWetness()) + ", " + 
   String(bmp.getTemperature(SEALEVELPRESSURE_HPA)) + ", " + 

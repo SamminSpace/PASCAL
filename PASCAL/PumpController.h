@@ -67,6 +67,9 @@ public:
     // Initializes the pins to be output
     errorState init();
 
+    void pattern();
+    bool patternDone = false;
+
     // Runs the sampling
     void sampling(double altitude);
 

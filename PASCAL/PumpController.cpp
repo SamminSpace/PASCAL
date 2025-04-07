@@ -41,6 +41,38 @@ errorState PumpController::init() {
     return NO_ERROR;
 }
 
+
+//Turns each solenoid on for 0.5 second and then closes
+void PumpController::pattern() {  
+
+   if (!patternDone){ 
+   digitalWrite(solenoidPins[0], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[0], LOW);
+   digitalWrite(solenoidPins[1], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[1], LOW);
+   digitalWrite(solenoidPins[2], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[2], LOW);
+   digitalWrite(solenoidPins[3], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[3], LOW);
+   digitalWrite(solenoidPins[4], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[4], LOW);
+   digitalWrite(solenoidPins[5], HIGH);
+   delay(500);
+   digitalWrite(solenoidPins[5], LOW);
+   digitalWrite(exhaustPin, HIGH);
+   delay(500);
+   digitalWrite(exhaustPin, LOW);
+   patternDone = true;
+   }
+
+}
+
+
 void PumpController::sampling(double altitude) {
  
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
