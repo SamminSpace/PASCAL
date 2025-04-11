@@ -92,34 +92,34 @@ void PumpController::takeSample(int sampleNum) {
 
         // Opening the exhaust
         digitalWrite(exhaustPin, HIGH);
-        Serial.println("EXHAUST OPEN");
+        // Serial.println("EXHAUST OPEN");
 
         // Running the pump
         digitalWrite(pumpPin, HIGH);
-        Serial.println("PUMP ON");
+        // Serial.println("PUMP ON");
 
         // Starting the timer for cleaning
         samples[sampleNum].cleaningTimer.reset();
-        Serial.println("Cleaning Timer Started");
+        // Serial.println("Cleaning Timer Started");
 
         // Setting the state
         samples[sampleNum].state = SampleState::CLEANING;
-        Serial.println("CLEANING");
+        // Serial.println("CLEANING");
         
     } else if (samples[sampleNum].state == SampleState::CLEANING) {
         if (samples[sampleNum].cleaningTimer.isComplete()) {
             
             // Stopping the cleaning
             digitalWrite(exhaustPin, LOW);
-            Serial.println("EXHAUST CLOSE");
+            // Serial.println("EXHAUST CLOSE");
 
             // Waiting like a half second
             samples[sampleNum].sealingTimer.reset();
-            Serial.println("Sealing Timer Started");
+            // Serial.println("Sealing Timer Started");
 
             // Changing the state
             samples[sampleNum].state = SampleState::SEALING;
-            Serial.println("SEALING");
+            // Serial.println("SEALING");
 
         } 
     } else if (samples[sampleNum].state == SampleState::SEALING) {
@@ -127,14 +127,14 @@ void PumpController::takeSample(int sampleNum) {
         // Checking if the thing has sealed yet
         if (samples[sampleNum].sealingTimer.isComplete()) {
 
-            Serial.println("Seal finsihed; Starting Sample");
+            // Serial.println("Seal finsihed; Starting Sample");
 
             // Beginning the sample            
             digitalWrite(solenoidPins[sampleNum], HIGH);
             samples[sampleNum].sampleTimer.reset();
             samples[sampleNum].state = SampleState::ACTIVE;
 
-            Serial.println("SOLENOID ON");
+            // Serial.println("SOLENOID ON");
 
         }
     
@@ -145,15 +145,15 @@ void PumpController::takeSample(int sampleNum) {
 
             // Stopping the sample
             digitalWrite(solenoidPins[sampleNum], LOW);
-            Serial.println("SOLENOID CLOSED ");
+            // Serial.println("SOLENOID CLOSED ");
 
             // Turning off the pump
             digitalWrite(pumpPin, LOW);
-            Serial.println("PUMP OFF");
+            // Serial.println("PUMP OFF");
 
             // Changing state
             samples[sampleNum].state = SampleState::COMPLETE;
-            Serial.println("COMPLETE");
+            // Serial.println("COMPLETE");
 
         }
 
