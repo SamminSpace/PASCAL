@@ -30,7 +30,10 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("FirstFlight")));  //probelms in config idk why
+Logger sd = Logger((String("TestingForFRR2")));  
+
+// Debugging stuff
+Timer fakeAltitudeTimer(16000);
 
 //Error Code Stuff
 errorState error;
@@ -98,16 +101,25 @@ void loop() {
 
 
    // Updating the altitude if lock 
-  if (gps.getSIV() >= 6){
-    digitalWrite(LED_BUILTIN, HIGH);
-    altitude = gps.getAltitude();
-  } else {
-    altitude = -1;
-  }
+  // if (gps.getSIV() >= 6){
+  //   digitalWrite(LED_BUILTIN, HIGH);
+  //   altitude = gps.getAltitude();
+  // } else {
+  //   altitude = -1;
+  // }
   
  
   logData();
-  //altitude = millis() / 10;
+
+  // Updating the altitude to the right stuff
+  if (fakeAltitudeTimer.isComplete()) {
+    altitude += 1000;
+    fakeAltitudeTimer.reset();
+    Serial.print("Moved up 1000 meters; altitude is now ");
+    Serial.println(altitude);
+  }
+
+  // altitude = millis() / 10;
   //Serial.println(altitude);
   //Serial.println(flightState);
   
