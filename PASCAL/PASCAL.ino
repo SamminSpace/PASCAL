@@ -39,17 +39,31 @@ Timer fakeAltitudeTimer(16000);
 errorState error;
 unsigned long beginMillis;
 int period = 500;
-void Blinky() {
-  unsigned long currentMillis;
-  
-  currentMillis = millis();  
-  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
-  {
-    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
-    digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinkingh likes go blink
-    beginMillis = currentMillis;  //save the start time of the current LED state.
-  } 
+
+//for external Leds
+unsigned long beginTime;
+bool ledOn;
+
+void initializeLEDS() {
+  unsigned long currentTime;
+  currentTime = millis(); 
+
+  if (!ledOn && (currentTime - beginTime >= 5000)) {
+    digitalWrite(config.pins.brightsLEDS, HIGH);
+    ledOn = true;
+    beginTime = currentTime;
+     Serial.println("LEDS ON");
+  }
+
+  if (ledOn && (currentTime - beginTime >= 100)) {
+    digitalWrite(config.pins.brightsLEDS, LOW);
+     Serial.println("OFF");
+    ledOn = false;
+  }
+ 
 }
+
+
 
 //payload state stuff
 State flightState;
@@ -90,23 +104,23 @@ void setup() {
 
   // missing: nitrogen, WE, Aux,
   sd.write("Payload, Payload State, Sampling, Packet Number, Mission Time, SIV, "
-    "UTC Time, Other Temp, Humidity, "
+    "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
     "Temperature, Pressure, GPS Altitude, GPS Latitude, GPS Longitude"); 
 
   flightState = INITIALIZATION;
 }
 
 void loop() {
-  //Blinky(); //must be in loop 
+  Blinky(); //must be in loop 
 
 
    // Updating the altitude if lock 
-  // if (gps.getSIV() >= 6){
-  //   digitalWrite(LED_BUILTIN, HIGH);
-  //   altitude = gps.getAltitude();
-  // } else {
-  //   altitude = -1;
-  // }
+  if (gps.getSIV() >= 6){
+    digitalWrite(LED_BUILTIN, HIGH);
+    altitude = gps.getAltitude();
+  } else {
+    altitude = -1;
+  }
   
  
   logData();
@@ -119,7 +133,7 @@ void loop() {
     Serial.println(altitude);
   }
 
-  // altitude = millis() / 10;
+  
   //Serial.println(altitude);
   //Serial.println(flightState);
   
@@ -130,6 +144,7 @@ void loop() {
 
   if(flightState == INITIALIZATION){
     controller.pattern();
+    initializeLEDS();
   }  
   else if (flightState == STANDBY){
     digitalWrite(LED_BUILTIN, HIGH);
@@ -299,4 +314,21 @@ switch(error){
 
 
 }
+
+
+void Blinky() {
+  unsigned long currentMillis;
+  currentMillis = millis(); 
+ 
+  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
+  {
+    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
+    if (flightState != INITIALIZATION){
+      digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinking likes go blink
+       Serial.println("NORMAL");
+    }  
+    beginMillis = currentMillis;  //save the start time of the current LED state.
+  } 
+}
+
 
