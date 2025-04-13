@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("TestingForFRR2")));  
+Logger sd = Logger((String("NightFlight")));  
 
 // Debugging stuff
 Timer fakeAltitudeTimer(16000);
@@ -69,7 +69,7 @@ void initializeLEDS() {
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 15;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
+int thirtyTimer = 1800;  //30 minute timer(1800 second)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -115,7 +115,7 @@ void loop() {
 
 
    // Updating the altitude if lock 
-  if (gps.getSIV() >= 6){
+  if (gps.getSIV() >= 3){
     digitalWrite(LED_BUILTIN, HIGH);
     altitude = gps.getAltitude();
   } else {
@@ -125,13 +125,13 @@ void loop() {
  
   logData();
 
-  // Updating the altitude to the right stuff
+  /* Updating the altitude to the right stuff
   if (fakeAltitudeTimer.isComplete()) {
     altitude += 1000;
     fakeAltitudeTimer.reset();
-    Serial.print("Moved up 1000 meters; altitude is now ");
-    Serial.println(altitude);
-  }
+    //Serial.print("Moved up 1000 meters; altitude is now ");
+    //Serial.println(altitude);
+  } */
 
   
   //Serial.println(altitude);
@@ -146,9 +146,6 @@ void loop() {
     controller.pattern();
     initializeLEDS();
   }  
-  else if (flightState == STANDBY){
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
   else if(flightState == PASSIVE){
     controller.sampling(altitude);
   } 
@@ -269,7 +266,7 @@ switch(error){
       config.pins.blinker = LED_BUILTIN; 
         //digitalWrite(config.pins.tiny, HIGH);
         //digitalWrite(config.pins.smol, HIGH);
-        //config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
+        config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
         break;
     
     case GPS_ERROR:  //error 2 is GPS (1 on/off)
