@@ -30,29 +30,46 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("FirstFlight")));  //probelms in config idk why
+Logger sd = Logger((String("NightFlight")));  
+
+// Debugging stuff
+Timer fakeAltitudeTimer(16000);
 
 //Error Code Stuff
 errorState error;
 unsigned long beginMillis;
 int period = 500;
-void Blinky() {
-  unsigned long currentMillis;
-  
-  currentMillis = millis();  
-  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
-  {
-    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
-    digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinkingh likes go blink
-    beginMillis = currentMillis;  //save the start time of the current LED state.
-  } 
+
+//for external Leds
+unsigned long beginTime;
+bool ledOn;
+
+void initializeLEDS() {
+  unsigned long currentTime;
+  currentTime = millis(); 
+
+  if (!ledOn && (currentTime - beginTime >= 5000)) {
+    digitalWrite(config.pins.brightsLEDS, HIGH);
+    ledOn = true;
+    beginTime = currentTime;
+     Serial.println("LEDS ON");
+  }
+
+  if (ledOn && (currentTime - beginTime >= 100)) {
+    digitalWrite(config.pins.brightsLEDS, LOW);
+     Serial.println("OFF");
+    ledOn = false;
+  }
+ 
 }
+
+
 
 //payload state stuff
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 3;  // TEMP 3 SEC for 30 minute timer(1800000 miliseconds)initializing period
+int thirtyTimer = 1800;  //30 minute timer(1800 second)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -76,7 +93,7 @@ void setup() {
 
     // Initializing the things
     checkErrors(humidity.turnOn());
-    //checkErrors(oxygen.init());
+    checkErrors(oxygen.init());
     checkErrors(bmp.init());
     checkErrors(gps.init());
     checkErrors(sd.init(config.pins.chipSelect));
@@ -87,7 +104,7 @@ void setup() {
 
   // missing: nitrogen, WE, Aux,
   sd.write("Payload, Payload State, Sampling, Packet Number, Mission Time, SIV, "
-    "UTC Time, Other Temp, Humidity, "
+    "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
     "Temperature, Pressure, GPS Altitude, GPS Latitude, GPS Longitude"); 
 
   flightState = INITIALIZATION;
@@ -96,26 +113,40 @@ void setup() {
 void loop() {
   Blinky(); //must be in loop 
 
-  // Updating the altitude 
-  altitude = gps.getAltitude();
-  //altitude = millis() / 10;
 
-
+   // Updating the altitude if lock 
   if (gps.getSIV() >= 3){
     digitalWrite(LED_BUILTIN, HIGH);
+    altitude = gps.getAltitude();
+  } else {
+    altitude = -1;
   }
-  //Serial.println(altitude);
-  //Serial.println(flightState);
-
+  
+ 
   logData();
 
+  /* Updating the altitude to the right stuff
+  if (fakeAltitudeTimer.isComplete()) {
+    altitude += 1000;
+    fakeAltitudeTimer.reset();
+    //Serial.print("Moved up 1000 meters; altitude is now ");
+    //Serial.println(altitude);
+  } */
+
+  
+  //Serial.println(altitude);
+  //Serial.println(flightState);
   
   if (tock.isComplete()) {
     decideState();
     tock.reset();
   }
 
-  if(flightState == PASSIVE){
+  if(flightState == INITIALIZATION){
+    controller.pattern();
+    initializeLEDS();
+  }  
+  else if(flightState == PASSIVE){
     controller.sampling(altitude);
   } 
 
@@ -135,7 +166,7 @@ void logData (){ //future reference: nitrogen, Aux, WE
   String(gps.getSIV()) + ", " + 
   String(utctime.year) + ":" + String(utctime.month) + ":" + String(utctime.day) + ":" + 
   String(utctime.hour) + ":" + String(utctime.minute) + ":" + String(utctime.second) + ", " + 
-  //String(oxygen.getOxygen()) + ", " + 
+  String(oxygen.getOxygen()) + ", " + 
   String(humidity.getHotness()) + ", " + 
   String(humidity.getWetness()) + ", " + 
   String(bmp.getTemperature(SEALEVELPRESSURE_HPA)) + ", " + 
@@ -235,7 +266,7 @@ switch(error){
       config.pins.blinker = LED_BUILTIN; 
         //digitalWrite(config.pins.tiny, HIGH);
         //digitalWrite(config.pins.smol, HIGH);
-        //config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
+        config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
         break;
     
     case GPS_ERROR:  //error 2 is GPS (1 on/off)
@@ -280,4 +311,21 @@ switch(error){
 
 
 }
+
+
+void Blinky() {
+  unsigned long currentMillis;
+  currentMillis = millis(); 
+ 
+  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
+  {
+    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
+    if (flightState != INITIALIZATION){
+      digitalWrite(config.pins.brightsLEDS, !digitalRead(config.pins.brightsLEDS));  // blinking likes go blink
+       Serial.println("NORMAL");
+    }  
+    beginMillis = currentMillis;  //save the start time of the current LED state.
+  } 
+}
+
 
