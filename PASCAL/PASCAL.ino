@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("NightFlight")));  
+Logger sd = Logger((String("VacuumTest")));  
 
 // Debugging stuff
 Timer fakeAltitudeTimer(16000);
@@ -92,10 +92,10 @@ void setup() {
 
 
     // Initializing the things
-    checkErrors(humidity.turnOn());
-    checkErrors(oxygen.init());
+    //checkErrors(humidity.turnOn());
+    //checkErrors(oxygen.init());
     checkErrors(bmp.init());
-    checkErrors(gps.init());
+    //checkErrors(gps.init());
     checkErrors(sd.init(config.pins.chipSelect));
 
     pinMode(LED_BUILTIN, OUTPUT);
@@ -103,41 +103,33 @@ void setup() {
     
 
   // missing: nitrogen, WE, Aux,
-  sd.write("Payload, Payload State, Sampling, Packet Number, Mission Time, SIV, "
-    "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
-    "Temperature, Pressure, GPS Altitude, GPS Latitude, GPS Longitude"); 
+  sd.write("Payload, Payload State, Sampling, Packet Number, Mission Time," 
+    " Temperature, Pressure, Altitude"); 
 
   flightState = INITIALIZATION;
 }
 
 void loop() {
   Blinky(); //must be in loop 
-
-
-   // Updating the altitude if lock 
-  if (gps.getSIV() >= 3){
-    digitalWrite(LED_BUILTIN, HIGH);
-    altitude = gps.getAltitude();
-  } else {
-    altitude = -1;
-  }
-  
  
   logData();
 
-  /* Updating the altitude to the right stuff
-  if (fakeAltitudeTimer.isComplete()) {
-    altitude += 1000;
-    fakeAltitudeTimer.reset();
-    //Serial.print("Moved up 1000 meters; altitude is now ");
-    //Serial.println(altitude);
-  } */
+  if (config.missionTime > 900){  //when Mission time is 15 minutes, run last sample
+    altitude = config.samplingAltitudes[5];
+    Serial.print(altitude);
+  }
+  else if (config.missionTime > 600){ //when Mission time is 10 minutes, run next sample
+    altitude = config.samplingAltitudes[1];
+    Serial.print(altitude);
+  }
+  else if (config.missionTime > 300){  //when Mission time is 5 minutes, run first sample
+    altitude = config.samplingAltitudes[0];
+    Serial.print(altitude);
+  }
+
 
   
-  //Serial.println(altitude);
-  //Serial.println(flightState);
-  
-  if (tock.isComplete()) {
+  if (tock.isComplete()) { //runs 15 seconds to update state
     decideState();
     tock.reset();
   }
@@ -163,17 +155,17 @@ void logData (){ //future reference: nitrogen, Aux, WE
   controller.getSampleStatus() + ", " +
   String(config.packetNumber) + ", " + 
   String(config.missionTime) + ", " + 
-  String(gps.getSIV()) + ", " + 
-  String(utctime.year) + ":" + String(utctime.month) + ":" + String(utctime.day) + ":" + 
-  String(utctime.hour) + ":" + String(utctime.minute) + ":" + String(utctime.second) + ", " + 
-  String(oxygen.getOxygen()) + ", " + 
-  String(humidity.getHotness()) + ", " + 
-  String(humidity.getWetness()) + ", " + 
+  //String(gps.getSIV()) + ", " + 
+  //String(utctime.year) + ":" + String(utctime.month) + ":" + String(utctime.day) + ":" + 
+  //String(utctime.hour) + ":" + String(utctime.minute) + ":" + String(utctime.second) + ", " + 
+  //String(oxygen.getOxygen()) + ", " + 
+  //String(humidity.getHotness()) + ", " + 
+  //String(humidity.getWetness()) + ", " + 
   String(bmp.getTemperature(SEALEVELPRESSURE_HPA)) + ", " + 
   String(bmp.getPressure(SEALEVELPRESSURE_HPA)) + ", " + 
-  String(altitude) + ", " + 
-  String(gps.getLatitude()) + ", " + 
-  String(gps.getLongitude());
+  String(altitude); // + ", " + 
+  //String(gps.getLatitude()) + ", " + 
+  //String(gps.getLongitude());
   
 
   sd.write(Data);
@@ -183,12 +175,12 @@ void logData (){ //future reference: nitrogen, Aux, WE
 
 
 
-void decideState() // TODO Run this every 15 seconds
+void decideState() //Runs every 15 seconds
 {
   
-    if ((config.missionTime > thirtyTimer) && (flightState == INITIALIZATION)) // No timer yet so removing it for testing + not needed for this flight
+    if ((config.missionTime > 10) && (flightState == INITIALIZATION)) //10 seconds for initialization
     {
-        flightState = STANDBY;
+        flightState = PASSIVE; //go straight into passive
     
     }
     else if ((altitude > 500) && (flightState == STANDBY))
