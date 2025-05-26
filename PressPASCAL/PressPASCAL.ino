@@ -114,15 +114,17 @@ void loop() {
  
   logData();
 
-  if (config.missionTime > 900){  //when Mission time is 15 minutes, run last sample
+
+  //THESE NEED TO BE CONVERTED INTO MMHG
+  if (bmp.getPressure(SEALEVELPRESSURE_HPA) < 2){  //when pressure reaches 2 mmHg, run last sample
     altitude = config.samplingAltitudes[5];
     Serial.print(altitude);
   }
-  else if (config.missionTime > 600){ //when Mission time is 10 minutes, run next sample
+  else if (bmp.getPressure(SEALEVELPRESSURE_HPA) < 14){ //when pressure  is 14 mmHg, run next sample
     altitude = config.samplingAltitudes[1];
     Serial.print(altitude);
   }
-  else if (config.missionTime > 300){  //when Mission time is 5 minutes, run first sample
+  else if (bmp.getPressure(SEALEVELPRESSURE_HPA) < 25){  //when pressure 25 mmHg, run first sample
     altitude = config.samplingAltitudes[0];
     Serial.print(altitude);
   }
