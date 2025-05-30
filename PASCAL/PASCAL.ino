@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("VacuumTest")));  
+Logger sd = Logger((String("PressureSUCK")));  
 
 // Debugging stuff
 Timer fakeAltitudeTimer(16000);
@@ -64,12 +64,17 @@ void initializeLEDS() {
 }
 
 
+//SPI LOGGER PINS SET UP
+const int _MISO = 16;
+const int _MOSI = 19;
+const int _SCK = 18;
+
 
 //payload state stuff
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 1800;  //30 minute timer(1800 second)initializing period
+int thirtyTimer = 15;  //30 minute timer(1800 second)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -78,6 +83,10 @@ void setup() {
   Wire.setSDA(12);
   Wire.setSCL(13);
   Wire.begin();
+
+  SPI.setRX(_MISO);
+  SPI.setTX(_MOSI);
+  SPI.setSCK(_SCK);
 
    // Setting up the chipselect
   pinMode(config.pins.chipSelect, OUTPUT);
@@ -88,7 +97,7 @@ void setup() {
   // Initializes solenoids/motor
   controller.init();
     
-    Serial.begin(9600);
+  Serial.begin(9600);
 
 
     // Initializing the things
@@ -99,6 +108,7 @@ void setup() {
     checkErrors(sd.init(config.pins.chipSelect));
 
     pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
 
     
 
@@ -110,22 +120,62 @@ void setup() {
 }
 
 void loop() {
-  Blinky(); //must be in loop 
- 
-  logData();
+  //Blinky(); //must be in loop 
+  
+  config.missionTime = millis() / 1000.00;
 
-  if (config.missionTime > 900){  //when Mission time is 15 minutes, run last sample
-    altitude = config.samplingAltitudes[5];
-    Serial.print(altitude);
+  logData();
+  
+  if (config.missionTime > 350){  //3 mins after last sample, run final sample
+    altitude = 20010;
   }
-  else if (config.missionTime > 600){ //when Mission time is 10 minutes, run next sample
-    altitude = config.samplingAltitudes[1];
-    Serial.print(altitude);
+  else if (config.missionTime > 155){ //when Mission time is 2 minutes, run next sample
+    altitude = 10010;
+    
   }
-  else if (config.missionTime > 300){  //when Mission time is 5 minutes, run first sample
-    altitude = config.samplingAltitudes[0];
-    Serial.print(altitude);
+  else if (config.missionTime > 30){  //when Mission time is 30 seconds minutes, run first sample
+    altitude = 1010;
   }
+  else {
+    altitude = 100;
+  } 
+
+  /* 1km = 896 mb
+  // 10 km = 264 mb
+  // 20km = 55 mb
+
+  if (bmp.getPressure(SEALEVELPRESSURE_HPA) < 55) {  //pressure at 20km, run last sample
+    altitude = 20010;
+  }
+  else if (bmp.getPressure(SEALEVELPRESSURE_HPA) < 264){ ///pressure at 10km,run next sample
+    altitude = 10010;
+    
+  }
+  else if (bmp.getPressure(SEALEVELPRESSURE_HPA) < 896){  //pressure at 1km, run first sample
+    altitude = 1010;
+  }
+  else {
+    altitude = 100;
+  } */
+
+
+  //TURNS LEDS ON IF PUMP IS ON
+  if (digitalRead(config.pins.pumpPin == HIGH)){
+    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(config.pins.tiny, HIGH);
+    digitalWrite(config.pins.smol, HIGH);
+  }
+  else {
+    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(config.pins.tiny, LOW);
+    digitalWrite(config.pins.smol, LOW);
+  }
+
+
+
+  Serial.println(config.missionTime);
+  Serial.println(altitude);
+  Serial.println(controller.getSampleStatus());
 
 
   
@@ -136,7 +186,7 @@ void loop() {
 
   if(flightState == INITIALIZATION){
     controller.pattern();
-    initializeLEDS();
+    //initializeLEDS();
   }  
   else if(flightState == PASSIVE){
     controller.sampling(altitude);
@@ -148,7 +198,7 @@ void loop() {
 void logData (){ //future reference: nitrogen, Aux, WE
   config.missionTime = millis() / 1000.00;
 
-  utctime = gps.getUTCTime();
+  //utctime = gps.getUTCTime();
 
   String Data = config.payload + ", " + 
   flightState + ", " + 
@@ -258,7 +308,7 @@ switch(error){
       config.pins.blinker = LED_BUILTIN; 
         //digitalWrite(config.pins.tiny, HIGH);
         //digitalWrite(config.pins.smol, HIGH);
-        config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
+        //config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
         break;
     
     case GPS_ERROR:  //error 2 is GPS (1 on/off)
