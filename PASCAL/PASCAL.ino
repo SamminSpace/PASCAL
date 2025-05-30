@@ -64,12 +64,17 @@ void initializeLEDS() {
 }
 
 
+//SPI LOGGER PINS SET UP
+const int _MISO = 16;
+const int _MOSI = 19;
+const int _SCK = 18;
+
 
 //payload state stuff
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 1800;  //30 minute timer(1800 second)initializing period
+int thirtyTimer = 15;  //30 minute timer(1800 second)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -78,6 +83,10 @@ void setup() {
   Wire.setSDA(12);
   Wire.setSCL(13);
   Wire.begin();
+  
+  SPI.setRX(_MISO);
+  SPI.setTX(_MOSI);
+  SPI.setSCK(_SCK);
 
    // Setting up the chipselect
   pinMode(config.pins.chipSelect, OUTPUT);
@@ -114,18 +123,18 @@ void loop() {
   Blinky(); //must be in loop 
 
 
-   // Updating the altitude if lock 
+  // Updating the altitude and Pico LED if lock 
   if (gps.getSIV() >= 3){
     digitalWrite(LED_BUILTIN, HIGH);
-    altitude = gps.getAltitude();
+    //altitude = gps.getAltitude();
   } else {
-    altitude = -1;
+    //altitude = -1;
   }
   
  
   logData();
 
-  /* Updating the altitude to the right stuff
+  // Updating the altitude to the right stuff every 16 ish secs
   if (fakeAltitudeTimer.isComplete()) {
     altitude += 1000;
     fakeAltitudeTimer.reset();
@@ -263,10 +272,8 @@ void checkErrors(errorState error) {
 
 switch(error){		
     case SD_ERROR:  //error 1 will be SD (all on)
-      config.pins.blinker = LED_BUILTIN; 
-        //digitalWrite(config.pins.tiny, HIGH);
-        //digitalWrite(config.pins.smol, HIGH);
-        config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
+        digitalWrite(config.pins.tiny, HIGH);
+        digitalWrite(config.pins.smol, HIGH);
         break;
     
     case GPS_ERROR:  //error 2 is GPS (1 on/off)
@@ -304,8 +311,8 @@ switch(error){
       
     default:
         //sd.write("lets go!");
-        //digitalWrite(config.pins.tiny, LOW);
-        //digitalWrite(config.pins.smol, LOW);
+        digitalWrite(config.pins.tiny, LOW);
+        digitalWrite(config.pins.smol, LOW);
         digitalWrite(LED_BUILTIN, LOW);
   }
 
