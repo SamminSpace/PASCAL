@@ -21,6 +21,13 @@
 #include "PumpController.h"
 
 
+//SPI LOGGER PINS SET UP
+const int _MISO = 16;
+const int _MOSI = 19;
+const int _SCK = 18;
+
+
+
 // Declaring all of the sensors and things
 Config config;  
 GPS gps; 
@@ -78,6 +85,10 @@ void setup() {
   Wire.setSDA(12);
   Wire.setSCL(13);
   Wire.begin();
+
+  SPI.setRX(_MISO);
+  SPI.setTX(_MOSI);
+  SPI.setSCK(_SCK);
 
    // Setting up the chipselect
   pinMode(config.pins.chipSelect, OUTPUT);
