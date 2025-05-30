@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("NightFlight")));  
+Logger sd = Logger((String("JuneFlight")));  
 
 // Debugging stuff
 Timer fakeAltitudeTimer(16000);
@@ -74,7 +74,7 @@ const int _SCK = 18;
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 15;  //30 minute timer(1800 second)initializing period
+int thirtyTimer = 1800;  //30 minute timer(1800 second)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -126,15 +126,15 @@ void loop() {
   // Updating the altitude and Pico LED if lock 
   if (gps.getSIV() >= 3){
     digitalWrite(LED_BUILTIN, HIGH);
-    //altitude = gps.getAltitude();
+    altitude = gps.getAltitude();
   } else {
-    //altitude = -1;
+    altitude = -1;
   }
   
  
   logData();
 
-  // Updating the altitude to the right stuff every 16 ish secs
+  /* Updating the altitude to the right stuff every 16 ish secs
   if (fakeAltitudeTimer.isComplete()) {
     altitude += 1000;
     fakeAltitudeTimer.reset();
@@ -142,9 +142,6 @@ void loop() {
     //Serial.println(altitude);
   } */
 
-  
-  //Serial.println(altitude);
-  //Serial.println(flightState);
   
   if (tock.isComplete()) {
     decideState();
