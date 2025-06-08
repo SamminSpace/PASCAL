@@ -1,7 +1,7 @@
 
 #include <Adafruit_HDC302x.h>
-#include "Config.h"
-#include "Humidity.h"
+#include "../include/Config.h"
+#include "../include/components/Humidity.h"
 
 
 errorState HumiditySensor::turnOn() {

@@ -1,11 +1,11 @@
 #ifndef GPS_H
 #define GPS_H
 
-#include "Time.h"
+#include "../include/Timers.h"
 #include <optional>
 // #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h> 
-#include "Config.h"
+#include "../include/Config.h"
 
 // A UTC time struct for data organization
 struct UTCTime {

@@ -2,7 +2,7 @@
 #define LOGGER_H
 
 // #include <string>
-#include "Config.h"
+#include "../include/Config.h"
 
 
 class Logger {

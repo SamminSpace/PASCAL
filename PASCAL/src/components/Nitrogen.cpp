@@ -1,7 +1,7 @@
 
 
-#include "Nitrogen.h"
-#include "Config.h"
+#include "../include/components/Nitrogen.h"
+#include "../include/Config.h"
 
 float NO2Sensor::readChannel(ADS1115_MUX channel) {
 

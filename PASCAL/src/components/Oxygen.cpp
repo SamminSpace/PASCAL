@@ -1,6 +1,6 @@
 
-#include "Oxygen.h"
-#include "Config.h"
+#include "../include/components/Oxygen.h"
+#include "../include/Config.h"
 
 errorState OxygenSensor::init() {
     if(!oxygen.begin(ADDRESS_3)){

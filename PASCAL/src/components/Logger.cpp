@@ -4,8 +4,8 @@
 // #include <SPI.h>
 // #include <Adafruit_BMP3XX.h>
 // #include "DFRobot_OxygenSensor.h"
-#include "Config.h"
-#include "Logger.h"
+#include "../include/Config.h"
+#include "../include/components/Logger.h"
 
 Logger::Logger(String fileNameToWrite) {
     fileName = fileNameToWrite;
@@ -23,16 +23,18 @@ void Logger::write(String toWrite) {
     if (dataFile) {
         dataFile.println(toWrite);
         dataFile.close();
-    } 
+    }
+
 }
 
+void Logger::writeHead() {
 
-// void Logger::writeHead() {
-//     File dataFile = SD.open(fileName + ".csv", FILE_WRITE);
-//     if (dataFile) {
-//         dataFile.println(openingString);
-//         dataFile.close();
-//     } 
+	// TODO
 
+    // File dataFile = SD.open(fileName + ".csv", FILE_WRITE);
+    // if (dataFile) {
+    //     dataFile.println(openingString);
+    //     dataFile.close();
+    // } 
 
-// } 
+} 

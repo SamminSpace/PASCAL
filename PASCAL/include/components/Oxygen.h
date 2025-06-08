@@ -1,7 +1,7 @@
 #ifndef OXYGEN_H
 #define OXYGEN_H
 #include "DFRobot_OxygenSensor.h"
-#include "Config.h"
+#include "../include/Config.h"
 
 class OxygenSensor {
 private:

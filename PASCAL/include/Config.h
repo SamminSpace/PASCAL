@@ -4,7 +4,7 @@
 #pragma once
 
 #include <Wire.h>
-#include <SD.h>
+// #include <SD.h>
 #include <SPI.h>
 #include <Adafruit_BMP3XX.h>
 #include "DFRobot_OxygenSensor.h"

@@ -3,22 +3,25 @@
 // This is what Arduino IDE will actually be running
 // Everything else will be imported
 
+#include "Arduino.h"
+
 // Library imports
 #include <Wire.h>
-#include <SD.h>
+// #include <SD.h>
 #include <SPI.h>
 #include <Adafruit_BMP3XX.h>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h> 
 #include "DFRobot_OxygenSensor.h"
+// #include <ctime>
 
 // Sensor imports
-#include "Logger.h"
-#include "BMP.h"
-#include "Oxygen.h"
-#include "GPS.h"
-#include "Config.h"
-#include "Humidity.h"
-#include "PumpController.h"
+#include "../include/components/Logger.h"
+#include "../include/components/BMP.h"
+#include "../include/components/Oxygen.h"
+#include "../include/components/GPS.h"
+#include "../include/Config.h"
+#include "../include/components/Humidity.h"
+#include "../include/components/PumpController.h"
 
 
 // Declaring all of the sensors and things
@@ -43,6 +46,14 @@ int period = 500;
 //for external Leds
 unsigned long beginTime;
 bool ledOn;
+
+// Pre-declaring the functions
+void Blinky();
+void checkErrors(errorState error);
+void logData();
+bool isConstantAlt();
+bool isItDescending();
+void decideState();
 
 void initializeLEDS() {
   unsigned long currentTime;
@@ -153,7 +164,7 @@ void loop() {
 }
 
 // woah a function that actually puts all the data in a massive string
-void logData (){ //future reference: nitrogen, Aux, WE
+void logData() { //future reference: nitrogen, Aux, WE
   config.missionTime = millis() / 1000.00;
 
   utctime = gps.getUTCTime();
@@ -212,10 +223,10 @@ void decideState() // TODO Run this every 15 seconds
 }
 
 
-bool isItDescending()
-{
-    if (altitude  < oldAlt)
-    {
+bool isItDescending() {
+
+    if (altitude  < oldAlt) {
+
         velocityInterval++;
         Serial.println("going down?!!!!");
 
@@ -236,8 +247,8 @@ bool isItDescending()
 
 
 
-bool isConstantAlt()
-{
+bool isConstantAlt() {
+
   if ((altitude  < oldAlt + 20) && (altitude  > oldAlt - 20)) //Checks if payload stationary
     {
         rangeInterval++;

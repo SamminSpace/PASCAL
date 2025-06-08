@@ -1,6 +1,6 @@
 
-#include "BMP.h"
-#include "Config.h"
+#include "../include/components/BMP.h"
+#include "../include/Config.h"
 
 
 double BMP::getTemperature(float seaLevelPressure){

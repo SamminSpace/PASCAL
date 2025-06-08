@@ -1,8 +1,8 @@
 #ifndef NITROGEN_H
 #define NITROGEN_H
 #pragma once
-#include<ADS1115_WE.h> 
-#include "Config.h"
+#include <ADS1115_WE.h> 
+#include "../include/Config.h"
 
 class NO2Sensor {
 private:

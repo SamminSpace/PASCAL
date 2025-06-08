@@ -1,8 +1,8 @@
 #ifndef PUMPCONTROLLER_H
 #define PUMPCONTROLLER_H
 
-#include "Time.h"
-#include "Config.h"
+#include "../include/Timers.h"
+#include "../include/Config.h"
 
 
 // Describes the samples as to whether they are running, done, or not started yet

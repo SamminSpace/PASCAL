@@ -1,6 +1,6 @@
 #pragma once
-#ifndef TIME_H
-#define TIME_H
+#ifndef TIMERS_H
+#define TIMERS_H
 
 class Stopwatch {
 protected:

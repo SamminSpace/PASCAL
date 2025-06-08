@@ -2,7 +2,7 @@
 #define BMP_H
 #include <Adafruit_BMP3XX.h>
 
-#include "Config.h"
+#include "../include/Config.h"
 
 class BMP {
 

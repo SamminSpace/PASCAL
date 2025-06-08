@@ -1,9 +1,9 @@
 // #include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h> 
 
-#include "Time.h"
-#include "GPS.h"
-#include "Config.h"
+#include "../include/Timers.h"
+#include "../include/components/GPS.h"
+#include "../include/Config.h"
 
 
 errorState GPS::init() {

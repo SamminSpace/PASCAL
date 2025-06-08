@@ -1,6 +1,6 @@
 #ifndef HUMIDITY_H
 #define HUMIDITY_H
-#include "Config.h"
+#include "../include/Config.h"
 #include <Adafruit_HDC302x.h>
 
 class HumiditySensor {

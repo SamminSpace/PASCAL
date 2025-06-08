@@ -1,6 +1,6 @@
 
-#include "PumpController.h"
-#include "Config.h"
+#include "../include/components/PumpController.h"
+#include "../include/Config.h"
 #include <Arduino.h>
 
 // Ensure that there are 6 solenoid pins
