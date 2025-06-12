@@ -16,7 +16,7 @@ public:
     void init();
 
     // Reads from the oxygen sensor
-    void update();
+    void updateData();
 
 };
 

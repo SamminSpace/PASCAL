@@ -37,6 +37,9 @@ void PumpController::init() {
     }
     pinMode(config.pins.exhaustPin, OUTPUT);
     pinMode(config.pins.pumpPin, OUTPUT);
+
+	// Automatically starting the pattern
+	pattern();
 }
 
 
@@ -73,7 +76,7 @@ void PumpController::pattern() {
 }
 
 
-void PumpController::sampling(double altitude) {
+void PumpController::sampling() {
 
 	// Assuming that all the samples are not started yet until we're proven wrong
 	data.sampleState = SampleState::NOT_STARTED;
@@ -81,7 +84,7 @@ void PumpController::sampling(double altitude) {
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
         
 		// Running the samples
-		if (samples[i].sampleAltitude < altitude && samples[i].state != SampleState::COMPLETE) {
+		if (samples[i].sampleAltitude < data.gpsData.pos.alt && samples[i].state != SampleState::COMPLETE) {
             takeSample(i);
         }
 

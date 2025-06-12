@@ -8,7 +8,7 @@ void OxygenSensor::init() {
     }
 }
 
-void OxygenSensor::update() {
+void OxygenSensor::updateData() {
     data.atmoData.oxygen = oxygen.getOxygenData(collectionNumber);
 
 }

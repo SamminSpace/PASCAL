@@ -32,7 +32,7 @@ public:
     void init(float WEOffset, float AuxOffset, float sensitivity, float tempMult);
 
     // Updates the nitrogen reading in Data
-    void getNO2();
+    void updateData();
 	
 
 };

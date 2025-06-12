@@ -28,3 +28,6 @@ void initPins();
 void logData();
 void initComponents();
 void collectData();
+void initLEDs();
+void blinky();
+void updateState();

@@ -65,7 +65,7 @@ public:
     void pattern();
 
     // Runs the sampling
-    void sampling(double altitude);
+    void sampling();
 
 };
 

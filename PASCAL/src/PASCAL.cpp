@@ -26,6 +26,7 @@ NO2Sensor no2 = NO2Sensor(config.pins.WE1Pin, config.pins.Aux1Pin, config.pins.P
 
 // Sets the needed pins to be output or input
 void initPins() {
+	pinMode(LED_BUILTIN, OUTPUT);
 	pinMode(config.pins.exhaustPin, OUTPUT);
 	pinMode(config.pins.pumpPin, OUTPUT);
 	pinMode(config.pins.brightLEDS, OUTPUT);
@@ -42,24 +43,197 @@ void initPins() {
 	for (int i = 0; i < 6; i++) {
 		pinMode(config.pins.solenoidPins[i], OUTPUT);
 	}
+
+	Wire.setSDA(12);
+	Wire.setSCL(13);
+	Wire.begin();
+
 }
 
 void initComponents() {
 	logger.init();
 	gps.init();
-	controller.init();
 	humidity.turnOn();
 	bmp.init();
 	oxygen.init();
 	no2.init(config.WEOffset, config.AuxOffset, config.sensitivity, config.temperatureMultiplier);
+	controller.init();
 }
 
 void collectData() {
 	gps.updateData();
 	bmp.updateData();
 	humidity.updateData();
-	
+	no2.updateData();
+	oxygen.updateData();
 }
+
+void updateState() {
+
+	// TODO update this and use a timer 
+
+	// if ((data.missionTime > thirtyTimer) && (data.state == INITIALIZATION)) // No timer yet so removing it for testing + not needed for this flight
+    // {
+    //     data.state = STANDBY;
+    
+    // }
+    // else if ((altitude > 500) && (data.state == STANDBY))
+    // {
+    //     data.state = PASSIVE;
+      	
+    // }
+    // else if ((isItDescending()) && (data.state == PASSIVE))
+    // {
+    //     data.state = DESCENT;
+      
+      
+    // }
+    // else if ((isConstantAlt()) && (data.state == DESCENT) && altitude < 500){
+    
+    //     data.state = LANDED;
+  
+    // }
+
+    // oldAlt = altitude;
+}
+
+
+void initLEDs() {
+	// TODO
+}
+
+void blinky() {
+	unsigned long currentMillis;
+	currentMillis = millis(); 
+   
+		// TODO Replace this with a timer
+	//   if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
+	//   {
+	//     digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
+	//     if (data.state != INITIALIZATION){
+	//       digitalWrite(config.pins.brightLEDS, !digitalRead(config.pins.brightLEDS));  // blinking likes go blink
+	//        Serial.println("NORMAL");
+	//     }  
+	//     beginMillis = currentMillis;  //save the start time of the current LED state.
+	//   } 
+}
+
+// Checks to see if the payload has been descending for 30 seconds 
+bool isItDescending() {
+
+	// TODO update this to use a timer in config
+
+    // if (altitude  < oldAlt) {
+
+    //     velocityInterval++;
+    //     Serial.println("going down?!!!!");
+
+    //     if (velocityInterval > 3) // If it descends for over a minute it changes the state to Descending
+    //     {
+    //         velocityInterval = 0; 
+    //         Serial.println("HEY IT SHOULD BE TRUE FOR NEGATIVE VELOCITY!");
+    //         return true;
+    //     }
+    // }
+    // else
+    // {
+    //     velocityInterval = 0;
+    //     return false;
+    // }
+    return false;
+}
+
+
+
+bool isLanded() {
+
+
+	// TODO update this in general
+
+	// if ((altitude  < oldAlt + 20) && (altitude  > oldAlt - 20)) /*Checks if payload stationary*/ {
+	// 		rangeInterval++;
+	// 		if (rangeInterval > 3) // If it stays within +-50 Meters for over a minute it changes the state to Landed
+	// 		{
+	// 			rangeInterval = 0; 
+	// 			return true;
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		rangeInterval = 0;
+	// 		return false;
+	// 	}
+
+	return false;
+}
+  
+
+// Needs to be updated as the errors are now in the telementry
+// This should just show the error codes on the LEDs
+// // Function to check for errors and display error codes
+// void checkErrors(Error error) {
+
+// TODO update this function to use the leds and a timer in config
+
+
+// switch(error){		
+//     case SD_ERROR:  //error 1 will be SD (all on)
+//       config.pins.blinker = LED_BUILTIN; 
+//         //digitalWrite(config.pins.tiny, HIGH);
+//         //digitalWrite(config.pins.smol, HIGH);
+//         config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
+//         break;
+    
+//     case GPS_ERROR:  //error 2 is GPS (1 on/off)
+//         logger.write("Hey, your GPS is messed up!");
+//         //digitalWrite(config.pins.tiny, HIGH);
+//         //digitalWrite(config.pins.smol, LOW);
+//         break;
+    
+//     case BMP_ERROR:   //BMP (other on/off)
+//         logger.write("BMP not found.");
+//         //digitalWrite(config.pins.tiny, LOW);
+//         //digitalWrite(config.pins.smol, HIGH);
+//         break;
+    
+//     case NO2_ERROR:  // NO2 (tiny blinks and smol on)
+//         logger.write("NO2 (the problem child) is not functioning");
+//         //digitalWrite(config.pins.smol, HIGH);
+//         //config.pins.blinker = config.pins.tiny;
+//         // Blinky();
+//         break;
+    
+//     case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
+//         logger.write("Must be too dry bc humidity not detected.");
+//         //digitalWrite(config.pins.tiny, HIGH);
+//         //config.pins.blinker = config.pins.smol;
+//         // Blinky();
+//         break;
+     
+//     case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
+//         logger.write("Apparently no oxygen found so idk how you are alive rn");
+//         //digitalWrite(config.pins.tiny, LOW);
+//         //config.pins.blinker = config.pins.smol;
+//         // Blinky();
+//         break;
+      
+//     default:
+//         //sd.write("lets go!");
+//         //digitalWrite(config.pins.tiny, LOW);
+//         //digitalWrite(config.pins.smol, LOW);
+//         digitalWrite(LED_BUILTIN, LOW);
+//   }
+
+
+// }
+
+
+
+
+
+
+
+
 
 // Function to get a string representations of the errors for printing
 String getErrorString(Error error) {

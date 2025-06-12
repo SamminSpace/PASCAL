@@ -33,7 +33,7 @@ void NO2Sensor::init(float WEOffset, float AuxOffset, float sensitivity, float t
     adc.setMeasureMode(ADS1115_CONTINUOUS); 
 }
 
-void NO2Sensor::getNO2() {
+void NO2Sensor::updateData() {
     adc.setCompareChannels(ADS1115_COMP_0_1);
     float WE = adc.getResult_mV(); // alternative: getResult_mV for Millivolt
 

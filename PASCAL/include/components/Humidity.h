@@ -1,5 +1,5 @@
-#ifndef HUMIDITY_H
-#define HUMIDITY_H
+#pragma once
+
 #include "Config.h"
 #include <Adafruit_HDC302x.h>
 
@@ -23,4 +23,4 @@ public:
     float getHotness();
 
 };
-#endif
+
