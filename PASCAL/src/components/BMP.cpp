@@ -1,24 +1,29 @@
 
-#include "../include/components/BMP.h"
-#include "../include/Config.h"
+#include "components/BMP.h"
+#include "PASCAL.h"
 
 
-double BMP::getTemperature(float seaLevelPressure){
-  bmp.readAltitude(seaLevelPressure);
-  return bmp.temperature;
+void BMP::updateTemperature(){
+  bmp.readAltitude(config.seaLevelPressure);
+  data.atmoData.temperature = bmp.temperature;
 }
-double BMP::getPressure(float seaLevelPressure){
-  bmp.readAltitude(seaLevelPressure);
-  return bmp.pressure / 100.0;
+void BMP::updatePressure(){
+  bmp.readAltitude(config.seaLevelPressure);
+  data.atmoData.pressure = bmp.pressure / 100.0;
 }
-double BMP::getAltitude(float seaLevelPressure){
-  return bmp.readAltitude(seaLevelPressure);
+void BMP::updateAltitude(){
+   data.atmoData.alt = bmp.readAltitude(config.seaLevelPressure);
+}
+
+void BMP::updateData() {
+	data.atmoData.alt = bmp.readAltitude(config.seaLevelPressure);	
+	data.atmoData.pressure = bmp.pressure / 100.0;
+	data.atmoData.temperature = bmp.temperature;
 }
 
 
-errorState BMP::init() {
+void BMP::init() {
     if (!bmp.begin_I2C()) {
-        return BMP_ERROR;
+        data.error = data.error > BMP_ERROR ? data.error : BMP_ERROR;	
     }
-    return NO_ERROR;
 }

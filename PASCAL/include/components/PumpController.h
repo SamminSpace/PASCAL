@@ -1,18 +1,8 @@
-#ifndef PUMPCONTROLLER_H
-#define PUMPCONTROLLER_H
+#pragma once
 
-#include "../include/Timers.h"
-#include "../include/Config.h"
-
-
-// Describes the samples as to whether they are running, done, or not started yet
-enum class SampleState {
-    NOT_STARTED,    // 0
-    ACTIVE,         // 1
-    SEALING,        // 2
-    COMPLETE,       // 3
-    CLEANING        // 4
-};
+#include "Timers.h"
+#include "Data.h"
+#include "Config.h"
 
 
 struct Sample {
@@ -26,7 +16,7 @@ struct Sample {
     // How long the sample will run
     Timer sampleTimer = Timer(1000);
 
-    // The sealing timer, defaults to a quarter of a second'
+    // The sealing timer, defaults to a quarter of a second
     Timer sealingTimer = Timer(250);
 
     // The cleaning timer, defaults to half a second
@@ -35,7 +25,8 @@ struct Sample {
     // The sample ID, AKA the index in the array
     int sampleNum;
 
-    // ! Honestly it might be wise to add a solenoid pin here to make it even more readable
+	// The pin controlling this sample's solenoid
+	int solenoidPin;
 
 };
 
@@ -46,14 +37,17 @@ private:
     // NOTE: These are not scalable though I think there should be a way to make them easily scalable in the future
 
     // The pins
-    int solenoidPins[6];
-    int numberOfSolenoids;
-    int pumpPin;
-    int exhaustPin;
+    // int solenoidPins[6];
+    // int numberOfSolenoids;
+    // int pumpPin;
+    // int exhaustPin;
 
     // The samples
     Sample samples[6];
-    int numberOfSamples;
+    // int numberOfSamples;
+
+	// Records whether the init pattern is done or not
+	bool patternDone = false;
 
     // A function to run a specific sample 
     // (private because they are meant to be accessed through the sampling function)
@@ -62,19 +56,16 @@ private:
 public:
 
     // Creates a new controller bound to the pins
-    PumpController(Config config);
+    PumpController();
 
     // Initializes the pins to be output
-    errorState init();
+    void init();
+
 
     void pattern();
-    bool patternDone = false;
 
     // Runs the sampling
     void sampling(double altitude);
 
-    // A function to get the status
-    String getSampleStatus();
-
 };
-#endif
+

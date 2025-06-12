@@ -1,30 +1,24 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
-// #include <string>
-#include "../include/Config.h"
-
+#include "Config.h"
+#include "Data.h"
 
 class Logger {
 private:
-    String fileName;
-
-    // TODO add in stuff to write the telemetry nicely
-
+    char* fileName;
 public:
 
     // Creates a new logger object
     // Note that the filename should NOT include.txt
-    Logger(String fileNameToWrite);
+    Logger(const char* prefix);
 
     // Initializes the logger
-    errorState init(int chipSelect);
+    void init();
 
     // Writes something to the logger
     void write(String toWrite);
 
-    // Adds the header to the file
-    void writeHead();
-    
+	// Writes all of the data we currently have to the SD
+	void writeTelemetry();
+
 };
-#endif

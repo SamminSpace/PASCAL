@@ -1,8 +1,7 @@
-#ifndef NITROGEN_H
-#define NITROGEN_H
+
 #pragma once
 #include <ADS1115_WE.h> 
-#include "../include/Config.h"
+#include "PASCAL.h"
 
 class NO2Sensor {
 private:
@@ -18,19 +17,19 @@ private:
     // The analog to digital converter
     ADS1115_WE adc;
 
-public:
-
     // Internal function to read the channels
     float readChannel(ADS1115_MUX channel);
+
+public:
 
     // Sets the pins and creates a new object
     NO2Sensor(int WE1, int Aux, int PT);
 
     // Initializes the sensor and adds the constants
-    errorState init(float WEOffset, float AuxOffset, float sensitivity, float tempMult);
+    void init(float WEOffset, float AuxOffset, float sensitivity, float tempMult);
 
-    // Returns the NO2 concentration in ppb
-    float getNO2();
+    // Updates the nitrogen reading in Data
+    void getNO2();
+	
 
 };
-#endif

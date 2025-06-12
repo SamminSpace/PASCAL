@@ -1,4 +1,4 @@
-#include "../include/Timers.h"
+#include "Timers.h"
 #include <Arduino.h>
 
 Stopwatch::Stopwatch() {

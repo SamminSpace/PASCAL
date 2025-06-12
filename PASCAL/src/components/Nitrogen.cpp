@@ -1,15 +1,14 @@
 
 
-#include "../include/components/Nitrogen.h"
-#include "../include/Config.h"
+#include "components/Nitrogen.h"
+#include "PASCAL.h"
+
 
 float NO2Sensor::readChannel(ADS1115_MUX channel) {
-
   float voltage = 0.0;
   adc.setCompareChannels(channel);
   voltage = adc.getResult_mV(); // alternative: getResult_mV for Millivolt
   return voltage;
-
 }
 
 NO2Sensor::NO2Sensor(int WE1, int Aux, int PT) {
@@ -19,25 +18,22 @@ NO2Sensor::NO2Sensor(int WE1, int Aux, int PT) {
     adc = ADS1115_WE(0x48);
 }
 
-errorState NO2Sensor::init(float WEOffset, float AuxOffset, float sensitivity, float tempMult) {
-
+void NO2Sensor::init(float WEOffset, float AuxOffset, float sensitivity, float tempMult) {
     this->WEOffset = WEOffset;
     this->AuxOffset = AuxOffset;
     this->sensitivity = sensitivity;
     this->tempMult = tempMult;
 
     if(!adc.init()){
-       return NO2_ERROR;
+       data.error = data.error > NO2_ERROR ? data.error : NO2_ERROR;	
     }
 
     adc.setVoltageRange_mV(ADS1115_RANGE_6144);
     adc.setCompareChannels(ADS1115_COMP_0_GND);
     adc.setMeasureMode(ADS1115_CONTINUOUS); 
-
-    return NO_ERROR;
 }
 
-float NO2Sensor::getNO2() {
+void NO2Sensor::getNO2() {
     adc.setCompareChannels(ADS1115_COMP_0_1);
     float WE = adc.getResult_mV(); // alternative: getResult_mV for Millivolt
 
@@ -46,7 +42,7 @@ float NO2Sensor::getNO2() {
 
     float WE_Real = WE - WEOffset;   //these are in mV
     float Aux_Real = tempMult * (Aux - AuxOffset);  //in mV
-    return (WE_Real - Aux_Real)/(sensitivity);
+    data.atmoData.no2 = (WE_Real - Aux_Real)/(sensitivity);
 }
 
 

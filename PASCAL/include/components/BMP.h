@@ -1,8 +1,6 @@
-#ifndef BMP_H
-#define BMP_H
-#include <Adafruit_BMP3XX.h>
 
-#include "../include/Config.h"
+#include <Adafruit_BMP3XX.h>
+#include "PASCAL.h"
 
 class BMP {
 
@@ -11,12 +9,14 @@ public:
     Adafruit_BMP3XX bmp;
 
     // Initializes the BMP 
-    errorState init();
+    void init();
 
     // Reads from the BMP and the reading
-    double getAltitude(float seaLevelPressure);
-    double getPressure(float seaLevelPressure);
-    double getTemperature(float seaLevelPressure);
+    void updateAltitude();
+    void updatePressure();
+    void updateTemperature();
+
+	// Refreshes each of the datapoints
+	void updateData();
 
 };
-#endif

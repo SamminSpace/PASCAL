@@ -1,7 +1,7 @@
 #ifndef OXYGEN_H
 #define OXYGEN_H
 #include "DFRobot_OxygenSensor.h"
-#include "../include/Config.h"
+#include "Config.h"
 
 class OxygenSensor {
 private:
@@ -13,10 +13,10 @@ private:
 public:
 
     // Initializes the oxygen sensor
-    errorState init();
+    void init();
 
     // Reads from the oxygen sensor
-    float getOxygen();
+    void update();
 
 };
 

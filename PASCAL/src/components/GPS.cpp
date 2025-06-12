@@ -1,94 +1,79 @@
 // #include <SparkFun_u-blox_GNSS_v3.h> //http://librarymanager/All#SparkFun_u-blox_GNSS_v3
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h> 
 
-#include "../include/Timers.h"
-#include "../include/components/GPS.h"
-#include "../include/Config.h"
+#include "Timers.h"
+#include "components/GPS.h"
+#include "Config.h"
+#include "Data.h"
+#include "PASCAL.h"
 
 
-errorState GPS::init() {
-  Serial.println("Beginning init function for GPS");
-    // Optional debug statements are commented out
 
-  Wire.setSDA(12);
-  Wire.setSCL(13);
-  Wire.begin();
+void GPS::init() {
+	Wire.setSDA(12);
+	Wire.setSCL(13);
+	Wire.begin();
 
     // Initialization
     if (!gps.begin()) {
-      Serial.println("GPS ERROR");
-      return GPS_ERROR;
+		data.error = data.error > GPS_ERROR ? data.error : GPS_ERROR;	
+		return;	
     }
 
     // Updating settings
     gps.setI2COutput(COM_TYPE_UBX);
     gps.setNavigationFrequency(5);
     if (gps.setDynamicModel(DYN_MODEL_AIRBORNE4g) == false) {
-        // TODO Error codes
-    }
+		//? Should we have a separate error for this or just GPS error
+		data.error = data.error > GPS_ERROR ? data.error : GPS_ERROR;	
+	}
     gps.saveConfiguration();
 
-    if (gps.getSIV() < 3) {
-        Serial.println("Waiting for lock, SIV: "); Serial.println(gps.getSIV());
-        
+	// Waiting for a satellite lock
+    while (gps.getSIV() < 3) {
+        Serial.print("Waiting for lock, SIV: ");
+		Serial.println(gps.getSIV());
+		// TODO Add a blink here so that we know that we are waiting for a lock
     }
 
-  return NO_ERROR;
 }
 
 void GPS::update() {
 
-  // Checking for new data
-  //gps.checkUblox();
-  // if (gps.getPVT() == false) {
-  //     //Serial.println("Nothing new");
-  //     return;  
-  // }
-  siv = gps.getSIV();
-  altitude = gps.getAltitude() / 1000.0;
-  longitude = (gps.getLongitude()) * pow(10, -7);
-  latitude = (gps.getLatitude()) * pow(10, -7);
-  time.year = (int)gps.getYear();
-  time.month = (int)gps.getMonth();
-  time.day = (int)gps.getDay();
-  time.hour = (int)gps.getHour();
-  time.minute = (int)gps.getMinute();
-  time.second = (int)gps.getSecond();
+	// Checking for new data
+	gps.checkUblox();
+	if (gps.getPVT() == false) {
+		return;  
+	}
+	
+	data.gpsData.pos = { 
+		((double)gps.getLongitude() * pow(10, -7)),
+		((double)gps.getLatitude() * pow(10, -7)),
+		gps.getAltitude() / 1000.0
+	};
+
+  	data.gpsData.SIV = gps.getSIV();
+	data.gpsData.time = {
+		(int)gps.getYear(),
+		(int)gps.getMonth(),
+		(int)gps.getDay(),
+		(int)gps.getHour(),
+		(int)gps.getMinute(),
+		(int)gps.getSecond(),
+	};
   
-  tick.reset();
-}
-
-float GPS::getAltitude() {
-  if (tick.isComplete()) {
-    update();
-  }
-  return altitude;
-}
-
-float GPS::getLongitude() {
-  if (tick.isComplete()) {
-    update();
-  }
-    return longitude;
-}
-
-float GPS::getLatitude() {
-  if (tick.isComplete()) {
-    update();
-  }
-    return latitude;
-}
-
-UTCTime GPS::getUTCTime() {
-  if (tick.isComplete()) {
-    update();
-  }
-  return time;
+  	tick.reset();
 }
 
 int GPS::getSIV() {
-  if (tick.isComplete()) {
-    update();
-  }
-    return siv;
+	if (tick.isComplete()) {
+		update();
+	}
+    return data.gpsData.SIV;
+}
+
+void GPS::updateData() {
+	if (tick.isComplete()) {
+		update();
+	}
 }

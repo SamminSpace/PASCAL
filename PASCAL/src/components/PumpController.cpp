@@ -1,17 +1,11 @@
 
-#include "../include/components/PumpController.h"
-#include "../include/Config.h"
+#include "components/PumpController.h"
+#include "Config.h"
+#include "PASCAL.h"
 #include <Arduino.h>
 
 // Ensure that there are 6 solenoid pins
-PumpController::PumpController(Config config) {
-
-    // Setting pins
-    for (int i = 0; i < sizeof(config.pins.solenoidPins)/sizeof(config.pins.solenoidPins[0]); i++) {
-        solenoidPins[i] = config.pins.solenoidPins[i];
-    }
-    exhaustPin = config.pins.exhaustPin;
-    pumpPin = config.pins.pumpPin;
+PumpController::PumpController() {
 
     // Setting the samples
     for (int i = 0; i < sizeof(config.samplingAltitudes)/sizeof(config.samplingAltitudes[0]); i++) {
@@ -22,8 +16,13 @@ PumpController::PumpController(Config config) {
         toAdd.sampleAltitude = config.samplingAltitudes[i];
         toAdd.sampleNum = i;
 
-        // creating the timers for each
-        toAdd.sampleTimer = Timer(config.sampleLengths[i]);       
+        // Creating the timers for each
+        toAdd.sampleTimer = Timer(config.sampleLengths[i]);    
+		toAdd.cleaningTimer = Timer(config.cleaningLengths[i]);
+		toAdd.sealingTimer = Timer(config.sealingLengths[i]);
+
+		// Adding the solenoid pin
+		toAdd.solenoidPin = config.pins.solenoidPins[i];
 
         // Adding it to the array
         samples[i] = toAdd;
@@ -32,53 +31,65 @@ PumpController::PumpController(Config config) {
 
 }
 
-errorState PumpController::init() {
-    for (int i = 0; i < sizeof(solenoidPins)/sizeof(solenoidPins[0]); i++) {
-        pinMode(solenoidPins[i], OUTPUT);
+void PumpController::init() {
+    for (int i = 0; i < sizeof(samples)/sizeof(samples[i]); i++) {
+        pinMode(samples[i].solenoidPin, OUTPUT);
     }
-    pinMode(exhaustPin, OUTPUT);
-    pinMode(pumpPin, OUTPUT);
-    return NO_ERROR;
+    pinMode(config.pins.exhaustPin, OUTPUT);
+    pinMode(config.pins.pumpPin, OUTPUT);
 }
 
 
 //Turns each solenoid on for 0.5 second and then closes
 void PumpController::pattern() {  
 
-   if (!patternDone){ 
-   digitalWrite(solenoidPins[0], HIGH);
-   delay(500);
-   digitalWrite(solenoidPins[0], LOW);
-   digitalWrite(solenoidPins[1], HIGH);
-   delay(500);
-   digitalWrite(solenoidPins[1], LOW);
-   digitalWrite(solenoidPins[2], HIGH);
-   delay(500);
-   digitalWrite(solenoidPins[2], LOW);
-   digitalWrite(solenoidPins[3], HIGH);
-   delay(500);
-   digitalWrite(solenoidPins[3], LOW);
-   digitalWrite(solenoidPins[4], HIGH);
-   delay(500);
-   digitalWrite(solenoidPins[4], LOW);
-   digitalWrite(solenoidPins[5], HIGH);
-   delay(500);
-   digitalWrite(solenoidPins[5], LOW);
-   digitalWrite(exhaustPin, HIGH);
-   delay(500);
-   digitalWrite(exhaustPin, LOW);
-   patternDone = true;
-   }
+	// TODO make this scalable
+
+	if (!patternDone){ 
+		digitalWrite(samples[0].solenoidPin, HIGH);
+		delay(500);
+		digitalWrite(samples[0].solenoidPin, LOW);
+		digitalWrite(samples[1].solenoidPin, HIGH);
+		delay(500);
+		digitalWrite(samples[1].solenoidPin, LOW);
+		digitalWrite(samples[2].solenoidPin, HIGH);
+		delay(500);
+		digitalWrite(samples[2].solenoidPin, LOW);
+		digitalWrite(samples[3].solenoidPin, HIGH);
+		delay(500);
+		digitalWrite(samples[3].solenoidPin, LOW);
+		digitalWrite(samples[4].solenoidPin, HIGH);
+		delay(500);
+		digitalWrite(samples[4].solenoidPin, LOW);
+		digitalWrite(samples[5].solenoidPin, HIGH);
+		delay(500);
+		digitalWrite(samples[5].solenoidPin, LOW);
+		digitalWrite(config.pins.exhaustPin, HIGH);
+		delay(500);
+		digitalWrite(config.pins.exhaustPin, LOW);
+		patternDone = true;
+	}
 
 }
 
 
 void PumpController::sampling(double altitude) {
+
+	// Assuming that all the samples are not started yet until we're proven wrong
+	data.sampleState = SampleState::NOT_STARTED;
  
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
-        if (samples[i].sampleAltitude < altitude && samples[i].state != SampleState::COMPLETE) {
+        
+		// Running the samples
+		if (samples[i].sampleAltitude < altitude && samples[i].state != SampleState::COMPLETE) {
             takeSample(i);
         }
+
+		// Updating the sample state in the telemetry
+		if (samples[i].state != SampleState::NOT_STARTED || samples[i].state != SampleState::COMPLETE) {
+			data.sampleState = samples[i].state;
+		}
+
     }
 
 }
@@ -91,26 +102,22 @@ void PumpController::takeSample(int sampleNum) {
         // Cleaning it out first
 
         // Opening the exhaust
-        digitalWrite(exhaustPin, HIGH);
-        // Serial.println("EXHAUST OPEN");
+        digitalWrite(config.pins.exhaustPin, HIGH);
 
         // Running the pump
-        digitalWrite(pumpPin, HIGH);
-        // Serial.println("PUMP ON");
+        digitalWrite(config.pins.pumpPin, HIGH);
 
         // Starting the timer for cleaning
         samples[sampleNum].cleaningTimer.reset();
-        // Serial.println("Cleaning Timer Started");
 
         // Setting the state
         samples[sampleNum].state = SampleState::CLEANING;
-        // Serial.println("CLEANING");
         
     } else if (samples[sampleNum].state == SampleState::CLEANING) {
         if (samples[sampleNum].cleaningTimer.isComplete()) {
             
             // Stopping the cleaning
-            digitalWrite(exhaustPin, LOW);
+            digitalWrite(config.pins.exhaustPin, LOW);
             // Serial.println("EXHAUST CLOSE");
 
             // Waiting like a half second
@@ -127,10 +134,10 @@ void PumpController::takeSample(int sampleNum) {
         // Checking if the thing has sealed yet
         if (samples[sampleNum].sealingTimer.isComplete()) {
 
-            // Serial.println("Seal finsihed; Starting Sample");
+            // Serial.println("Seal finished; Starting Sample");
 
             // Beginning the sample            
-            digitalWrite(solenoidPins[sampleNum], HIGH);
+            digitalWrite(samples[sampleNum].solenoidPin, HIGH);
             samples[sampleNum].sampleTimer.reset();
             samples[sampleNum].state = SampleState::ACTIVE;
 
@@ -144,11 +151,11 @@ void PumpController::takeSample(int sampleNum) {
         if (samples[sampleNum].sampleTimer.isComplete()) {
 
             // Stopping the sample
-            digitalWrite(solenoidPins[sampleNum], LOW);
+            digitalWrite(samples[sampleNum].solenoidPin, LOW);
             // Serial.println("SOLENOID CLOSED ");
 
             // Turning off the pump
-            digitalWrite(pumpPin, LOW);
+            digitalWrite(config.pins.pumpPin, LOW);
             // Serial.println("PUMP OFF");
 
             // Changing state
@@ -161,16 +168,3 @@ void PumpController::takeSample(int sampleNum) {
 
 }
 
-// A getter for the sample status 
-String PumpController::getSampleStatus() {
-  for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
-      if(samples[i].state == SampleState::ACTIVE){
-        return "SAMPLING";
-      } else if (samples[i].state == SampleState::CLEANING) {
-        return "CLEANING";
-      } else if (samples[i].state == SampleState::SEALING) {
-        return "SEALING";
-      }
-  }
-  return "PASSIVE";
-}

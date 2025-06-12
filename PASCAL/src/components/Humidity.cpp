@@ -1,24 +1,20 @@
 
 #include <Adafruit_HDC302x.h>
-#include "../include/Config.h"
-#include "../include/components/Humidity.h"
+#include "components/Humidity.h"
+#include "PASCAL.h"
 
-
-errorState HumiditySensor::turnOn() {
+void HumiditySensor::turnOn() {
     if(!humidity.begin()){
-        return HUMID_ERROR;
+		data.error = data.error > HUMID_ERROR ? data.error : HUMID_ERROR;	
     }
-    return NO_ERROR;
 }
 
 void HumiditySensor::update() {
-  humidity.readTemperatureHumidityOnDemand(temp, RH, TRIGGERMODE_LP0);
+	double humid;
+  	humidity.readTemperatureHumidityOnDemand(temp, humid, TRIGGERMODE_LP0);
+	data.atmoData.humidity = humid;
 }
 
-float HumiditySensor::getWetness() {
-    update();
-    return RH; 
-}
 
 float HumiditySensor::getHotness() {
     update();

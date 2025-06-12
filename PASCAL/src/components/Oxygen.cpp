@@ -1,15 +1,14 @@
 
-#include "../include/components/Oxygen.h"
-#include "../include/Config.h"
+#include "components/Oxygen.h"
+#include "PASCAL.h"
 
-errorState OxygenSensor::init() {
+void OxygenSensor::init() {
     if(!oxygen.begin(ADDRESS_3)){
-        return O2_ERROR;
+		data.error = data.error > O2_ERROR ? data.error : O2_ERROR;
     }
-    return NO_ERROR;
 }
 
-float OxygenSensor::getOxygen() {
-    return oxygen.getOxygenData(collectionNumber);
+void OxygenSensor::update() {
+    data.atmoData.oxygen = oxygen.getOxygenData(collectionNumber);
 
 }
