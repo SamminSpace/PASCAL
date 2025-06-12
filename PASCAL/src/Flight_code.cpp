@@ -23,25 +23,6 @@
 #include "components/PumpController.h"
 
 
-// Declaring all of the sensors and things
-UTCTime utctime;
-HumiditySensor humidity;
-BMP bmp;
-OxygenSensor oxygen;
-Timer tock = Timer(15000); //15 second timer
-
-// Debugging stuff
-Timer fakeAltitudeTimer(16000);
-
-//Error Code Stuff
-Error error;
-unsigned long beginMillis;
-int period = 500;
-
-//for external Leds
-unsigned long beginTime;
-bool ledOn;
-
 // Pre-declaring the functions
 void Blinky();
 void checkErrors(Error error);
@@ -50,29 +31,8 @@ bool isConstantAlt();
 bool isItDescending();
 void decideState();
 
-void initializeLEDS() {
-  unsigned long currentTime;
-  currentTime = millis(); 
 
-  if (!ledOn && (currentTime - beginTime >= 5000)) {
-    digitalWrite(config.pins.brightLEDS, HIGH);
-    ledOn = true;
-    beginTime = currentTime;
-     Serial.println("LEDS ON");
-  }
-
-  if (ledOn && (currentTime - beginTime >= 100)) {
-    digitalWrite(config.pins.brightLEDS, LOW);
-     Serial.println("OFF");
-    ledOn = false;
-  }
- 
-}
-
-
-
-//payload state stuff
-FlightState flightState;
+// Payload state stuff
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
 int thirtyTimer = 1800;  //30 minute timer(1800 second)initializing period
@@ -113,48 +73,28 @@ void setup() {
 		"UTC Time, Oxygen Concentration, Other Temp, Humidity, "
 		"Temperature, Pressure, GPS Altitude, GPS Latitude, GPS Longitude"); 
 
-	flightState = INITIALIZATION;
+	data.state = INITIALIZATION;
 }
 
 void loop() {
   Blinky(); //must be in loop 
 
 
-//    // Updating the altitude if lock 
-//   if (gps.getSIV() >= 3){
-//     digitalWrite(LED_BUILTIN, HIGH);
-//     altitude = gps.getAltitude();
-//   } else {
-//     altitude = -1;
-//   }
-  
  
   logData();
 
-  /* Updating the altitude to the right stuff
-  if (fakeAltitudeTimer.isComplete()) {
-    altitude += 1000;
-    fakeAltitudeTimer.reset();
-    //Serial.print("Moved up 1000 meters; altitude is now ");
-    //Serial.println(altitude);
-  } */
+//   if (tock.isComplete()) {
+//     decideState();
+//     tock.reset();
+//   }
 
-  
-  //Serial.println(altitude);
-  //Serial.println(flightState);
-  
-  if (tock.isComplete()) {
-    decideState();
-    tock.reset();
-  }
-
-  if(flightState == INITIALIZATION){
-    controller.pattern();
-    initializeLEDS();
-  }  
-  else if(flightState == PASSIVE){
-    controller.sampling(altitude);
-  } 
+//   if(flightState == INITIALIZATION){
+//     controller.pattern();
+//     initializeLEDS();
+//   }  
+//   else if(flightState == PASSIVE){
+//     controller.sampling(altitude);
+//   } 
 
 }
 
@@ -164,25 +104,25 @@ void loop() {
 void decideState() // TODO Run this every 15 seconds
 {
   
-    if ((data.missionTime > thirtyTimer) && (flightState == INITIALIZATION)) // No timer yet so removing it for testing + not needed for this flight
+    if ((data.missionTime > thirtyTimer) && (data.state == INITIALIZATION)) // No timer yet so removing it for testing + not needed for this flight
     {
-        flightState = STANDBY;
+        data.state = STANDBY;
     
     }
-    else if ((altitude > 500) && (flightState == STANDBY))
+    else if ((altitude > 500) && (data.state == STANDBY))
     {
-        flightState = PASSIVE;
+        data.state = PASSIVE;
       	
     }
-    else if ((isItDescending()) && (flightState == PASSIVE))
+    else if ((isItDescending()) && (data.state == PASSIVE))
     {
-        flightState = DESCENT;
+        data.state = DESCENT;
       
       
     }
-    else if ((isConstantAlt()) && (flightState == DESCENT) && altitude < 500){
+    else if ((isConstantAlt()) && (data.state == DESCENT) && altitude < 500){
     
-        flightState = LANDED;
+        data.state = LANDED;
   
     }
 
@@ -295,15 +235,16 @@ void Blinky() {
   unsigned long currentMillis;
   currentMillis = millis(); 
  
-  if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
-  {
-    digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
-    if (flightState != INITIALIZATION){
-      digitalWrite(config.pins.brightLEDS, !digitalRead(config.pins.brightLEDS));  // blinking likes go blink
-       Serial.println("NORMAL");
-    }  
-    beginMillis = currentMillis;  //save the start time of the current LED state.
-  } 
+  // TODO Replace this with a timer
+//   if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
+//   {
+//     digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
+//     if (data.state != INITIALIZATION){
+//       digitalWrite(config.pins.brightLEDS, !digitalRead(config.pins.brightLEDS));  // blinking likes go blink
+//        Serial.println("NORMAL");
+//     }  
+//     beginMillis = currentMillis;  //save the start time of the current LED state.
+//   } 
 }
 
 

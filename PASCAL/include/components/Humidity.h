@@ -8,6 +8,7 @@ private:
 
     Adafruit_HDC302x humidity; 
 
+	// TODO Add this in as another form of telemetry 
     double temp; //temperature measured from the humidity sensor cached if needed for whatever reason
 
 public:
@@ -16,7 +17,7 @@ public:
     void turnOn();
 
 	// Updates the data we have from the sensor
-	void update();
+	void updateData();
 
     // Reads the temperature from the humidity sensor
     float getHotness();

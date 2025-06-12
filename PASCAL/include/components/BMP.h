@@ -1,6 +1,8 @@
+#pragma once 
 
 #include <Adafruit_BMP3XX.h>
-#include "PASCAL.h"
+#include "Data.h"
+#include "Config.h"
 
 class BMP {
 

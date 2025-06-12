@@ -6,6 +6,10 @@
 #include "components/Logger.h"
 #include "components/GPS.h"
 #include "components/PumpController.h"
+#include "components/Humidity.h"
+#include "components/BMP.h"
+#include "components/Oxygen.h"
+#include "components/Nitrogen.h"
 
 
 // Defining global variables
@@ -14,6 +18,10 @@ Data data;
 Logger logger = Logger("PASCAL");
 GPS gps = GPS();
 PumpController controller = PumpController();
+HumiditySensor humidity = HumiditySensor();
+BMP bmp = BMP();
+OxygenSensor oxygen = OxygenSensor();
+NO2Sensor no2 = NO2Sensor(config.pins.WE1Pin, config.pins.Aux1Pin, config.pins.PTPin);
 
 
 // Sets the needed pins to be output or input
@@ -36,6 +44,22 @@ void initPins() {
 	}
 }
 
+void initComponents() {
+	logger.init();
+	gps.init();
+	controller.init();
+	humidity.turnOn();
+	bmp.init();
+	oxygen.init();
+	no2.init(config.WEOffset, config.AuxOffset, config.sensitivity, config.temperatureMultiplier);
+}
+
+void collectData() {
+	gps.updateData();
+	bmp.updateData();
+	humidity.updateData();
+	
+}
 
 // Function to get a string representations of the errors for printing
 String getErrorString(Error error) {
@@ -113,8 +137,7 @@ void logData() { //future reference: nitrogen, Aux, WE
 	String(data.atmoData.temperature) + ", " + 
 	String(data.atmoData.humidity) + ", " + 
 
-	// We only have one temperature right now
-	// String(bmp.getTemperature(SEALEVELPRESSURE_HPA)) + ", " +  
+	// TODO Add in the temperature from the humidity sensor
 
 	String(data.atmoData.pressure) + ", " + 
 	String(data.gpsData.pos.alt) + ", " + 
@@ -128,3 +151,4 @@ void logData() { //future reference: nitrogen, Aux, WE
 
 }
   
+

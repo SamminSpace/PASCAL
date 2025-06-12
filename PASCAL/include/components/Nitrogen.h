@@ -1,7 +1,8 @@
 
 #pragma once
 #include <ADS1115_WE.h> 
-#include "PASCAL.h"
+#include "Data.h"
+#include "Config.h"
 
 class NO2Sensor {
 private:
@@ -21,6 +22,8 @@ private:
     float readChannel(ADS1115_MUX channel);
 
 public:
+
+	// TODO update this to not save the pins, just use the config object
 
     // Sets the pins and creates a new object
     NO2Sensor(int WE1, int Aux, int PT);
