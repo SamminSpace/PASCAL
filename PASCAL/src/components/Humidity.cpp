@@ -7,13 +7,21 @@ void HumiditySensor::turnOn() {
     if(!humidity.begin()){
 		data.error = data.error > HUMID_ERROR ? data.error : HUMID_ERROR;	
     }
+	
+	// If we switch to this it should make everything way faster
+	humidity.setAutoMode(AUTO_MEASUREMENT_0_5MPS_LP0);
 }
 
 void HumiditySensor::updateData() {
-	// TODO Update this to be faster
+
 	double humid;
 	double temp;
-  	humidity.readTemperatureHumidityOnDemand(temp, humid, TRIGGERMODE_LP0);
+  	
+	// humidity.readTemperatureHumidityOnDemand(temp, humid, TRIGGERMODE_LP0);
+	// Changing to this can greatly increase loop speed
+	humidity.readAutoTempRH(temp, humid);
+
+
 	data.atmoData.humidity = humid;
 	data.atmoData.humiditySensorTemperature = temp;
 }
