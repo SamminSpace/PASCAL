@@ -1,5 +1,19 @@
 // This file is just for running whatever test code we want
 #include "Arduino.h"
+#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_BMP3XX.h>
+#include <SparkFun_u-blox_GNSS_Arduino_Library.h> 
+#include "DFRobot_OxygenSensor.h"
+#include "Data.h"
+#include "Config.h"
+#include "PASCAL.h"
+#include "components/Logger.h"
+#include "components/BMP.h"
+#include "components/Oxygen.h"
+#include "components/GPS.h"
+#include "components/Humidity.h"
+#include "components/PumpController.h"
 
 void setup() {
 
@@ -10,23 +24,3 @@ void loop() {
 
 }
 
-
-void testLEDs() {
-
-	// TODO Update this to make the leds blink so we know we have control
-  
-	// if (!ledOn && (currentTime - beginTime >= 5000)) {
-	//   digitalWrite(config.pins.brightLEDs, HIGH);
-	//   ledOn = true;
-	//   beginTime = currentTime;
-	//    Serial.println("LEDS ON");
-	// }
-  
-	// if (ledOn && (currentTime - beginTime >= 100)) {
-	//   digitalWrite(config.pins.brightLEDs, LOW);
-	//    Serial.println("OFF");
-	//   ledOn = false;
-	// }
-   
-  }
-  
