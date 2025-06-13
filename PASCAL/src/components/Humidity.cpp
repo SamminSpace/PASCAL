@@ -12,12 +12,8 @@ void HumiditySensor::turnOn() {
 void HumiditySensor::updateData() {
 	// TODO Update this to be faster
 	double humid;
+	double temp;
   	humidity.readTemperatureHumidityOnDemand(temp, humid, TRIGGERMODE_LP0);
 	data.atmoData.humidity = humid;
-}
-
-
-float HumiditySensor::getHotness() {
-    updateData();
-    return temp; 
+	data.atmoData.humiditySensorTemperature = temp;
 }
