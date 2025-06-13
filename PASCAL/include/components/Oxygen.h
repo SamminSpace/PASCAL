@@ -8,6 +8,7 @@ private:
 
     DFRobot_OxygenSensor oxygen;
 
+	// Lower is faster, but less precise (We are recording every single sample, so maybe lower is better)
     int collectionNumber = 10; // Can be from 1-100
 
 public:

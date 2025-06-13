@@ -9,7 +9,5 @@ void OxygenSensor::init() {
 }
 
 void OxygenSensor::updateData() {
-	// TODO See if you can make this faster
     data.atmoData.oxygen = oxygen.getOxygenData(collectionNumber);
-
 }
