@@ -16,6 +16,7 @@ void BMP::updateAltitude(){
 }
 
 void BMP::updateData() {
+	// TODO update this to be faster
 	data.atmoData.alt = bmp.readAltitude(config.seaLevelPressure);	
 	data.atmoData.pressure = bmp.pressure / 100.0;
 	data.atmoData.temperature = bmp.temperature;

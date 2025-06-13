@@ -1,6 +1,4 @@
 #pragma once
-#ifndef TIMERS_H
-#define TIMERS_H
 
 class Stopwatch {
 protected:
@@ -33,5 +31,3 @@ public:
     void setEndTime(unsigned long newEndTime);
 };
 
-
-#endif

@@ -24,10 +24,16 @@ extern BMP bmp;
 extern OxygenSensor oxygen;
 extern NO2Sensor no2;
 
+
 void initPins();
 void logData();
 void initComponents();
+void displayErrors();
 void collectData();
 void initLEDs();
 void blinky();
+bool isItDescending();
+bool isLanded();
 void updateState();
+String getFlightStateString(FlightState state);
+String getSampleStateString(SampleState state);

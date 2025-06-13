@@ -3,6 +3,7 @@
 // All the includes 
 #include "Config.h"
 #include "Data.h"
+#include "Timers.h"
 #include "components/Logger.h"
 #include "components/GPS.h"
 #include "components/PumpController.h"
@@ -60,179 +61,187 @@ void initComponents() {
 	controller.init();
 }
 
-void collectData() {
-	gps.updateData();
-	bmp.updateData();
-	humidity.updateData();
-	no2.updateData();
-	oxygen.updateData();
-}
-
-void updateState() {
-
-	// TODO update this and use a timer 
-
-	// if ((data.missionTime > thirtyTimer) && (data.state == INITIALIZATION)) // No timer yet so removing it for testing + not needed for this flight
-    // {
-    //     data.state = STANDBY;
-    
-    // }
-    // else if ((altitude > 500) && (data.state == STANDBY))
-    // {
-    //     data.state = PASSIVE;
-      	
-    // }
-    // else if ((isItDescending()) && (data.state == PASSIVE))
-    // {
-    //     data.state = DESCENT;
-      
-      
-    // }
-    // else if ((isConstantAlt()) && (data.state == DESCENT) && altitude < 500){
-    
-    //     data.state = LANDED;
-  
-    // }
-
-    // oldAlt = altitude;
-}
-
-
 void initLEDs() {
 	// TODO
 }
 
+// Timer that blinks the external LEDs throughout the flight
+Timer blinkyTimer = Timer(500); // Half a second
+
 void blinky() {
-	unsigned long currentMillis;
-	currentMillis = millis(); 
-   
-		// TODO Replace this with a timer
-	//   if (currentMillis - beginMillis >= period)  //test whether the period has elapsed
-	//   {
-	//     digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
-	//     if (data.state != INITIALIZATION){
-	//       digitalWrite(config.pins.brightLEDS, !digitalRead(config.pins.brightLEDS));  // blinking likes go blink
-	//        Serial.println("NORMAL");
-	//     }  
-	//     beginMillis = currentMillis;  //save the start time of the current LED state.
-	//   } 
+	if (blinkyTimer.isComplete()) {
+		digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
+		if (data.state != INITIALIZATION){
+			digitalWrite(config.pins.brightLEDS, !digitalRead(config.pins.brightLEDS));
+		}
+		blinkyTimer.reset();  
+	} 
 }
 
-// Checks to see if the payload has been descending for 30 seconds 
+// 30 second timer for descent checking
+Timer descendingTimer = Timer(0);
+bool descentTimerStarted = false;
+
+// The last altitude checked so we can figure out direction
+double lastAltitude = 0;
+
+// Checks to see if the payload has been descending for a minute 
 bool isItDescending() {
 
-	// TODO update this to use a timer in config
+	// Starting the timer
+    if (data.gpsData.pos.alt <= lastAltitude && !descentTimerStarted) {
 
-    // if (altitude  < oldAlt) {
+		descendingTimer = Timer(60000); // 1 minute
+		lastAltitude = data.gpsData.pos.alt;
+		descentTimerStarted = true;
+		return false;
 
-    //     velocityInterval++;
-    //     Serial.println("going down?!!!!");
+	}
 
-    //     if (velocityInterval > 3) // If it descends for over a minute it changes the state to Descending
-    //     {
-    //         velocityInterval = 0; 
-    //         Serial.println("HEY IT SHOULD BE TRUE FOR NEGATIVE VELOCITY!");
-    //         return true;
-    //     }
-    // }
-    // else
-    // {
-    //     velocityInterval = 0;
-    //     return false;
-    // }
-    return false;
-}
+	// Invalidating the timer if it is going up again
+	if (data.gpsData.pos.alt > lastAltitude) {
 
+		descentTimerStarted = false;
+		lastAltitude = data.gpsData.pos.alt;
+		return false;
 
+	}
 
-bool isLanded() {
-
-
-	// TODO update this in general
-
-	// if ((altitude  < oldAlt + 20) && (altitude  > oldAlt - 20)) /*Checks if payload stationary*/ {
-	// 		rangeInterval++;
-	// 		if (rangeInterval > 3) // If it stays within +-50 Meters for over a minute it changes the state to Landed
-	// 		{
-	// 			rangeInterval = 0; 
-	// 			return true;
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		rangeInterval = 0;
-	// 		return false;
-	// 	}
+	// Returning true if the timer is done and we're still going down
+	if (descendingTimer.isComplete() && descentTimerStarted && data.gpsData.pos.alt <= lastAltitude) {
+		return true;
+	}
 
 	return false;
+
 }
-  
 
-// Needs to be updated as the errors are now in the telementry
-// This should just show the error codes on the LEDs
-// // Function to check for errors and display error codes
-// void checkErrors(Error error) {
+// Timer for the checking to see if the payload has landed or not
+Timer landingTimer = Timer(120000);
+double landingAltitude = 0;
 
-// TODO update this function to use the leds and a timer in config
+// Checks to see if the altitude has stabilized +-50 meters for over 2 minutes
+bool isLanded() {
+
+	if ((data.gpsData.pos.alt  < landingAltitude + 25) && (data.gpsData.pos.alt  > landingAltitude - 25)) {
+		if (landingTimer.isComplete()) {
+			return true;
+		}
+	} else {
+		landingTimer.reset();
+		landingAltitude = data.gpsData.pos.alt;
+	}
+	return false;
+}
+
+// The 30 minute timer that allows the nitrogen sensor to configure
+Timer initializationTimer = Timer(1800000);
+
+// Timer to limit the number of times the payload checks the state
+Timer stateTimer = Timer(10000);
+
+void updateState() {
+
+	if (!stateTimer.isComplete()) return;
+	stateTimer.reset();
+
+	switch (data.state) {
+		case INITIALIZATION:
+			if (initializationTimer.isComplete()) data.state = STANDBY;
+			break;
+		case STANDBY:
+			if (data.gpsData.pos.alt > 500) data.state = PASSIVE;
+			break;
+		case PASSIVE:
+			if (isItDescending()) data.state = DESCENT;
+			break;
+		case DESCENT:
+			if (isLanded()) data.state = LANDED;
+			break;
+	}
+}
+
+// TODO Someone other than Sam W look over the error stuff to make sure it makes sense
+// Timer for blinking error codes
+Timer errorTimer = Timer(500);
+
+// Displays the error through the LEDs
+void displayErrors() {
+
+	/****************************************** Error Definitions ******************************************
+	 *
+	 *	If all lights are off, then there were no errors.
+	 *  If the ONLY LIGHT ON is the pico light, then GPS has gained lock
+	 *
+	 *	If all three lights are on, then there was an SD error
+	 *	If the pico light and ONLY ONE error light is on, then there was a GPS error
+	 *	If the only light on is ONE error light, then there was a BMP error
+	 *  If both error lights are on and the pico light is off, then there was an NO2 error
+	 *	If ONE error light is blinking and the other two are off, then there was a humidity sensor error
+	 * 	If both error lights are blinking in sync, then there was a oxygen sensor error
+	 *
+	*******************************************************************************************************/
+
+	// We don't care after it is ascending
+	if (data.state != INITIALIZATION && data.state != STANDBY) return;
+
+	switch(data.error){		
+		case SD_ERROR:
+			digitalWrite(config.pins.tiny, HIGH);
+			digitalWrite(config.pins.smol, HIGH);
+			digitalWrite(LED_BUILTIN, HIGH);
+			break;
+
+		case GPS_ERROR: 
+			digitalWrite(config.pins.tiny, HIGH);
+			digitalWrite(config.pins.smol, LOW);
+			digitalWrite(LED_BUILTIN, HIGH);
+			break;
+
+		case BMP_ERROR:
+			digitalWrite(config.pins.tiny, LOW);
+			digitalWrite(config.pins.smol, HIGH);
+			digitalWrite(LED_BUILTIN, LOW);
+			break;
+
+		case NO2_ERROR:
+			digitalWrite(config.pins.tiny, HIGH);
+			digitalWrite(config.pins.smol, HIGH);
+			digitalWrite(LED_BUILTIN, LOW);
+			break;
+
+		case HUMID_ERROR: 
+			digitalWrite(config.pins.tiny, LOW);
+			digitalWrite(LED_BUILTIN, LOW);
+			if (errorTimer.isComplete()) {
+				digitalWrite(config.pins.smol, !digitalRead(config.pins.smol));
+				errorTimer.reset();
+			}
+			break;
+
+		case O2_ERROR:
+			digitalWrite(LED_BUILTIN, LOW);
+			if (errorTimer.isComplete()) {
+				digitalWrite(config.pins.smol, !digitalRead(config.pins.smol));
+				digitalWrite(config.pins.tiny, !digitalRead(config.pins.smol));
+				errorTimer.reset();
+			}
+			break;
+
+		case NO_ERROR:
+			digitalWrite(config.pins.tiny, LOW);
+			digitalWrite(config.pins.smol, LOW);
+			if (data.gpsData.SIV > 3) {
+				digitalWrite(LED_BUILTIN, HIGH);
+			} else {
+				digitalWrite(LED_BUILTIN, LOW);
+			}
+			break;
+
+	}
 
 
-// switch(error){		
-//     case SD_ERROR:  //error 1 will be SD (all on)
-//       config.pins.blinker = LED_BUILTIN; 
-//         //digitalWrite(config.pins.tiny, HIGH);
-//         //digitalWrite(config.pins.smol, HIGH);
-//         config.pins.blinker = LED_BUILTIN;   //IF SD ERROR PICO LED BLINKS
-//         break;
-    
-//     case GPS_ERROR:  //error 2 is GPS (1 on/off)
-//         logger.write("Hey, your GPS is messed up!");
-//         //digitalWrite(config.pins.tiny, HIGH);
-//         //digitalWrite(config.pins.smol, LOW);
-//         break;
-    
-//     case BMP_ERROR:   //BMP (other on/off)
-//         logger.write("BMP not found.");
-//         //digitalWrite(config.pins.tiny, LOW);
-//         //digitalWrite(config.pins.smol, HIGH);
-//         break;
-    
-//     case NO2_ERROR:  // NO2 (tiny blinks and smol on)
-//         logger.write("NO2 (the problem child) is not functioning");
-//         //digitalWrite(config.pins.smol, HIGH);
-//         //config.pins.blinker = config.pins.tiny;
-//         // Blinky();
-//         break;
-    
-//     case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
-//         logger.write("Must be too dry bc humidity not detected.");
-//         //digitalWrite(config.pins.tiny, HIGH);
-//         //config.pins.blinker = config.pins.smol;
-//         // Blinky();
-//         break;
-     
-//     case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
-//         logger.write("Apparently no oxygen found so idk how you are alive rn");
-//         //digitalWrite(config.pins.tiny, LOW);
-//         //config.pins.blinker = config.pins.smol;
-//         // Blinky();
-//         break;
-      
-//     default:
-//         //sd.write("lets go!");
-//         //digitalWrite(config.pins.tiny, LOW);
-//         //digitalWrite(config.pins.smol, LOW);
-//         digitalWrite(LED_BUILTIN, LOW);
-//   }
-
-
-// }
-
-
-
-
-
-
-
+}
 
 
 // Function to get a string representations of the errors for printing
@@ -296,9 +305,8 @@ String getFlightStateString(FlightState state) {
 }
 
 // woah a function that actually puts all the data in a massive string
-void logData() { //future reference: nitrogen, Aux, WE
-	data.missionTime = millis() / 1000.00;
-    
+void logData() { 
+	//future reference: nitrogen, Aux, WE
 	String Data = config.payload + ", " + 
 	getFlightStateString(data.state) + ", " + 
 	getSampleStateString(data.sampleState) + ", " +
@@ -307,22 +315,30 @@ void logData() { //future reference: nitrogen, Aux, WE
 	String(data.gpsData.SIV) + ", " + 
 	String(data.gpsData.time.year) + ":" + String(data.gpsData.time.month) + ":" + String(data.gpsData.time.day) + ":" + 
 	String(data.gpsData.time.hour) + ":" + String(data.gpsData.time.minute) + ":" + String(data.gpsData.time.second) + ", " + 
-	String() + ", " + 
+	String(data.atmoData.oxygen) + ", " + 
 	String(data.atmoData.temperature) + ", " + 
 	String(data.atmoData.humidity) + ", " + 
-
-	// TODO Add in the temperature from the humidity sensor
-
+	String(data.atmoData.humiditySensorTemperature) + ", " + 
 	String(data.atmoData.pressure) + ", " + 
 	String(data.gpsData.pos.alt) + ", " + 
 	String(data.gpsData.pos.lat) + ", " + 
-	String(data.gpsData.pos.lon) +
+	String(data.gpsData.pos.lon) + ", " +
+	String(data.atmoData.no2) + ", " +
+	String(data.Aux_real) + ", " +
+	String(data.WE_real) + ", " +
 	getErrorString(data.error);
 	
 	logger.write(Data);
   
 	data.packetNumber++;
-
 }
   
-
+void collectData() {
+	gps.updateData();
+	bmp.updateData();
+	humidity.updateData();
+	no2.updateData();
+	oxygen.updateData();
+	data.missionTime = millis() / 1000.00;
+	displayErrors();
+}

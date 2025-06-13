@@ -79,7 +79,7 @@ void PumpController::pattern() {
 void PumpController::sampling() {
 
 	// Assuming that all the samples are not started yet until we're proven wrong
-	data.sampleState = SampleState::NOT_STARTED;
+	data.sampleState = SampleState::COMPLETE;
  
     for (int i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
         
@@ -89,7 +89,7 @@ void PumpController::sampling() {
         }
 
 		// Updating the sample state in the telemetry
-		if (samples[i].state != SampleState::NOT_STARTED || samples[i].state != SampleState::COMPLETE) {
+		if (samples[i].state != SampleState::NOT_STARTED && samples[i].state != SampleState::COMPLETE) {
 			data.sampleState = samples[i].state;
 		}
 

@@ -38,8 +38,9 @@ void Logger::init() {
 		return;   
     }
 
+	// Writes the header for the file
+	write("Payload, Payload State, Sampling State, Packet Number, Mission Time (s), SIV, UTC Time, Oxygen Concentration (ppb), Temperature (deg C), Humidity (%),Humidity Sensor Temperature (deg C), Pressure (mBar), GPS Altitude (m), GPS Latitude (DD.dddd), GPS Longitude (DD.dddd), Nitrogen (ppb), Aux Measure (mV), WE Measure (mV), Errors"); 
 
-	// TODO Add a header write here
 	
 }
 

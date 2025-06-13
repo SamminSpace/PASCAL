@@ -44,12 +44,13 @@ struct GPSData {
 
 // TODO Ensure these units match
 struct Atmospheric {
-    float pressure;     // Pa?
-    float temperature;  // deg C?
-    float alt;          // m MSL
-    double humidity;    // percent
-	float oxygen;		// ppb
-	float no2; 	    	// ppb
+    float pressure;     				// Pa?
+    float temperature;  				// deg C?
+    float alt;          				// m MSL
+    double humidity;    				// percent
+	double humiditySensorTemperature; 	// deg C?
+	float oxygen;						// ppb
+	float no2; 	    					// ppb
 };
 
 // Describes the samples as to whether they are running, done, or not started yet
@@ -69,9 +70,12 @@ struct Data {
 	unsigned long missionTime = 0; // s
 	FlightState state = FlightState::INITIALIZATION;
 	SampleState sampleState = SampleState::NOT_STARTED;
-
 	GPSData gpsData;
 	Atmospheric atmoData;
+
+	// For the no2 reading and debugging
+	float WE_real; 	// mV 
+	float Aux_real; // mV
 
 	// TODO Implement expandability so that all the errors are logged
 	Error error = NO_ERROR; // Yields the highest error generated
