@@ -53,6 +53,32 @@ void Logger::write(String toWrite) {
 }
 
 void Logger::writeTelemetry() {
-	// TODO
+
+	// future reference: nitrogen, Aux, WE
+	String Data = config.payload + ", " + 
+	getFlightStateString(data.state) + ", " + 
+	getSampleStateString(data.sampleState) + ", " +
+	String(data.packetNumber) + ", " + 
+	String(data.missionTime) + ", " + 
+	String(data.gpsData.SIV) + ", " + 
+	String(data.gpsData.time.year) + ":" + String(data.gpsData.time.month) + ":" + String(data.gpsData.time.day) + ":" + 
+	String(data.gpsData.time.hour) + ":" + String(data.gpsData.time.minute) + ":" + String(data.gpsData.time.second) + ", " + 
+	String(data.atmoData.oxygen) + ", " + 
+	String(data.atmoData.temperature) + ", " + 
+	String(data.atmoData.humidity) + ", " + 
+	String(data.atmoData.humiditySensorTemperature) + ", " + 
+	String(data.atmoData.pressure) + ", " + 
+	String(data.gpsData.pos.alt) + ", " + 
+	String(data.gpsData.pos.lat) + ", " + 
+	String(data.gpsData.pos.lon) + ", " +
+	String(data.atmoData.no2) + ", " +
+	String(data.Aux_real) + ", " +
+	String(data.WE_real) + ", " +
+	getErrorString(data.error);
+	
+	write(Data);
+  
+	data.packetNumber++;
 }
+  
 

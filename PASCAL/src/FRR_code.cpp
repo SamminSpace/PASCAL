@@ -33,7 +33,7 @@ void loop() {
 	blinky(); 
 	collectData();
 	fakeAltitude();
-  	logData();
+	logger.writeTelemetry();
 	updateState();
 	if (data.state == PASSIVE) controller.sampling();
 	// Printing the altitude and the state

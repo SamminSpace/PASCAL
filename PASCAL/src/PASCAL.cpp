@@ -73,7 +73,7 @@ void initLEDs(int msDelay) {
 	digitalWrite(config.pins.tiny, LOW);
 	digitalWrite(config.pins.smol, LOW);
 	digitalWrite(config.pins.blinker, LOW);
-	
+
 }
 
 // Timer that blinks the external LEDs throughout the flight
@@ -315,35 +315,7 @@ String getFlightStateString(FlightState state) {
 	return flightStateStrs[(int)state];
 }
 
-// woah a function that actually puts all the data in a massive string
-void logData() { 
-	//future reference: nitrogen, Aux, WE
-	String Data = config.payload + ", " + 
-	getFlightStateString(data.state) + ", " + 
-	getSampleStateString(data.sampleState) + ", " +
-	String(data.packetNumber) + ", " + 
-	String(data.missionTime) + ", " + 
-	String(data.gpsData.SIV) + ", " + 
-	String(data.gpsData.time.year) + ":" + String(data.gpsData.time.month) + ":" + String(data.gpsData.time.day) + ":" + 
-	String(data.gpsData.time.hour) + ":" + String(data.gpsData.time.minute) + ":" + String(data.gpsData.time.second) + ", " + 
-	String(data.atmoData.oxygen) + ", " + 
-	String(data.atmoData.temperature) + ", " + 
-	String(data.atmoData.humidity) + ", " + 
-	String(data.atmoData.humiditySensorTemperature) + ", " + 
-	String(data.atmoData.pressure) + ", " + 
-	String(data.gpsData.pos.alt) + ", " + 
-	String(data.gpsData.pos.lat) + ", " + 
-	String(data.gpsData.pos.lon) + ", " +
-	String(data.atmoData.no2) + ", " +
-	String(data.Aux_real) + ", " +
-	String(data.WE_real) + ", " +
-	getErrorString(data.error);
-	
-	logger.write(Data);
-  
-	data.packetNumber++;
-}
-  
+
 void collectData() {
 	gps.updateData();
 	bmp.updateData();

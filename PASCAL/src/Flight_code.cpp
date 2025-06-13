@@ -23,7 +23,7 @@ void setup() {
 void loop() {
 	blinky(); 
 	collectData();
-  	logData();
+	logger.writeTelemetry();
 	updateState();
 	if (data.state == PASSIVE) controller.sampling();
 }

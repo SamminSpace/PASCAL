@@ -37,3 +37,4 @@ bool isLanded();
 void updateState();
 String getFlightStateString(FlightState state);
 String getSampleStateString(SampleState state);
+String getErrorString(Error error);
