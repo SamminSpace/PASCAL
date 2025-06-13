@@ -30,10 +30,13 @@ void GPS::init() {
     gps.saveConfiguration();
 
 	// Waiting for a satellite lock
+	long startTime = millis();
     while (gps.getSIV() < 3) {
         Serial.print("Waiting for lock, SIV: ");
 		Serial.println(gps.getSIV());
-		// TODO Add a blink here so that we know that we are waiting for a lock
+		
+		// Limiting the wait to 3 seconds
+		if (millis() - startTime > 3000) break;
     }
 
 }
