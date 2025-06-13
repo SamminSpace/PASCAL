@@ -30,7 +30,7 @@ void logData();
 void initComponents();
 void displayErrors();
 void collectData();
-void initLEDs();
+void initLEDs(int msDelay);
 void blinky();
 bool isItDescending();
 bool isLanded();

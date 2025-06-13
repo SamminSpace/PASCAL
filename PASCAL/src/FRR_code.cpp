@@ -20,7 +20,7 @@ void setup() {
 	Serial.begin(9600);
 	initPins();
 	initComponents();
-	initLEDs();
+	initLEDs(5000);
 
 	// Delay to allow the serial monitor to open
 	delay(5000);

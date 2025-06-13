@@ -30,7 +30,7 @@ void initPins() {
 	pinMode(LED_BUILTIN, OUTPUT);
 	pinMode(config.pins.exhaustPin, OUTPUT);
 	pinMode(config.pins.pumpPin, OUTPUT);
-	pinMode(config.pins.brightLEDS, OUTPUT);
+	pinMode(config.pins.brightLEDs, OUTPUT);
 	pinMode(config.pins.tiny, OUTPUT);
 	pinMode(config.pins.smol, OUTPUT);
 	pinMode(config.pins.blinker, OUTPUT);
@@ -61,8 +61,19 @@ void initComponents() {
 	controller.init();
 }
 
-void initLEDs() {
-	// TODO
+// Turns on all of the LEDs to ensure they are operational
+void initLEDs(int msDelay) {
+	
+	digitalWrite(config.pins.brightLEDs, HIGH);
+	digitalWrite(config.pins.tiny, HIGH);
+	digitalWrite(config.pins.smol, HIGH);
+	digitalWrite(config.pins.blinker, HIGH); // I'm not entirely sure what this is?
+	delay(msDelay);
+	digitalWrite(config.pins.brightLEDs, LOW);
+	digitalWrite(config.pins.tiny, LOW);
+	digitalWrite(config.pins.smol, LOW);
+	digitalWrite(config.pins.blinker, LOW);
+	
 }
 
 // Timer that blinks the external LEDs throughout the flight
@@ -72,7 +83,7 @@ void blinky() {
 	if (blinkyTimer.isComplete()) {
 		digitalWrite(config.pins.blinker, !digitalRead(config.pins.blinker));
 		if (data.state != INITIALIZATION){
-			digitalWrite(config.pins.brightLEDS, !digitalRead(config.pins.brightLEDS));
+			digitalWrite(config.pins.brightLEDs, !digitalRead(config.pins.brightLEDs));
 		}
 		blinkyTimer.reset();  
 	} 

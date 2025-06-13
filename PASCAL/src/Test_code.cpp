@@ -16,14 +16,14 @@ void testLEDs() {
 	// TODO Update this to make the leds blink so we know we have control
   
 	// if (!ledOn && (currentTime - beginTime >= 5000)) {
-	//   digitalWrite(config.pins.brightLEDS, HIGH);
+	//   digitalWrite(config.pins.brightLEDs, HIGH);
 	//   ledOn = true;
 	//   beginTime = currentTime;
 	//    Serial.println("LEDS ON");
 	// }
   
 	// if (ledOn && (currentTime - beginTime >= 100)) {
-	//   digitalWrite(config.pins.brightLEDS, LOW);
+	//   digitalWrite(config.pins.brightLEDs, LOW);
 	//    Serial.println("OFF");
 	//   ledOn = false;
 	// }

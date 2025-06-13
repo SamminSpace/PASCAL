@@ -17,7 +17,7 @@
 void setup() {
 	initPins();
 	initComponents();
-	initLEDs();
+	initLEDs(3000);
 }
 
 void loop() {

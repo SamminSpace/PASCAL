@@ -29,7 +29,7 @@ struct Pins {
     int pumpPin = 1;
 
     // The LEDs that will be flashing during the flight outside
-    int brightLEDS = 11; 
+    int brightLEDs = 11; 
     
     // These are the LEDs on the board, for debugging
     int tiny = 7;
