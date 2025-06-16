@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("NightFlight")));  
+Logger sd = Logger((String("GPStest")));  
 
 // Debugging stuff
 Timer fakeAltitudeTimer(16000);
@@ -74,7 +74,7 @@ const int _SCK = 18;
 State flightState;
 int velocityInterval = 0;   // for check going down
 int rangeInterval = 0;      // for check if stay constant
-int thirtyTimer = 15;  //30 minute timer(1800 second)initializing period
+int thirtyTimer = 5;  //30 minute timer(1800 second)initializing period
 float oldAlt; //needed to check going up or down
 int altitude = 0;
 
@@ -116,31 +116,32 @@ void setup() {
     "UTC Time, Oxygen Concentration, Other Temp, Humidity, "
     "Temperature, Pressure, GPS Altitude, GPS Latitude, GPS Longitude"); 
 
-  flightState = INITIALIZATION;
+  flightState = STANDBY;
 }
 
 void loop() {
-  Blinky(); //must be in loop 
+  Blinky(); //WILL BLINK EXTERNAL LEDs 
 
 
   // Updating the altitude and Pico LED if lock 
   if (gps.getSIV() >= 3){
     digitalWrite(LED_BUILTIN, HIGH);
-    //altitude = gps.getAltitude();
+    altitude = gps.getAltitude();
   } else {
-    //altitude = -1;
+    altitude = -1;
   }
   
+  Serial.println(altitude);
  
   logData();
 
-  // Updating the altitude to the right stuff every 16 ish secs
+  /* Updating the altitude to the right stuff every 16 ish secs
   if (fakeAltitudeTimer.isComplete()) {
     altitude += 1000;
     fakeAltitudeTimer.reset();
     //Serial.print("Moved up 1000 meters; altitude is now ");
     //Serial.println(altitude);
-  } */
+  } 
 
   
   //Serial.println(altitude);
@@ -157,7 +158,7 @@ void loop() {
   }  
   else if(flightState == PASSIVE){
     controller.sampling(altitude);
-  } 
+  }  */
 
 }
 
@@ -272,8 +273,8 @@ void checkErrors(errorState error) {
 
 switch(error){		
     case SD_ERROR:  //error 1 will be SD (all on)
-        digitalWrite(config.pins.tiny, HIGH);
-        digitalWrite(config.pins.smol, HIGH);
+        //digitalWrite(config.pins.tiny, HIGH);
+        //digitalWrite(config.pins.smol, HIGH);
         break;
     
     case GPS_ERROR:  //error 2 is GPS (1 on/off)
@@ -292,21 +293,18 @@ switch(error){
         sd.write("NO2 (the problem child) is not functioning");
         //digitalWrite(config.pins.smol, HIGH);
         //config.pins.blinker = config.pins.tiny;
-        // Blinky();
         break;
     
     case HUMID_ERROR:  //Humidity (smol blinks and tiny on)
         sd.write("Must be too dry bc humidty not detected.");
         //digitalWrite(config.pins.tiny, HIGH);
         //config.pins.blinker = config.pins.smol;
-        // Blinky();
         break;
      
     case O2_ERROR:   //O2 (tiny on and smol blinks) !!!!DIFFERENT FROM WHAT WAS DISCUSSED!!!!
         sd.write("Apparently no oxygen found so idk how you are alive rn");
         //digitalWrite(config.pins.tiny, LOW);
         //config.pins.blinker = config.pins.smol;
-        // Blinky();
         break;
       
     default:
