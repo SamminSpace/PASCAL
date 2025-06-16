@@ -30,7 +30,7 @@ BMP bmp;
 OxygenSensor oxygen;
 PumpController controller(config);
 Timer tock = Timer(15000); //15 second timer
-Logger sd = Logger((String("JuneFlight")));  
+Logger sd = Logger((String("MayFlight")));  
 
 // Debugging stuff
 Timer fakeAltitudeTimer(16000);
