@@ -6,9 +6,6 @@
 
 class NO2Sensor {
 private:
-    int WE1Pin;
-    int Aux1Pin;
-    int PTPin;
 
     float WEOffset;
     float AuxOffset;
@@ -23,10 +20,8 @@ private:
 
 public:
 
-	// TODO update this to not save the pins, just use the config object
-
     // Sets the pins and creates a new object
-    NO2Sensor(int WE1, int Aux, int PT);
+    NO2Sensor();
 
     // Initializes the sensor and adds the constants
     void init(float WEOffset, float AuxOffset, float sensitivity, float tempMult);

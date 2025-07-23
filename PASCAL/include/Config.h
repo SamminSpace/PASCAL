@@ -39,11 +39,6 @@ struct Pins {
     // For SPI I think
     int chipSelect = 17;
 
-    // For the NO2 sensor
-    int WE1Pin = 34;
-    int Aux1Pin = 32;
-    int PTPin = 31;
-
 	// The I2C that everything uses
 	I2C i2c;
 

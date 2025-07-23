@@ -11,10 +11,7 @@ float NO2Sensor::readChannel(ADS1115_MUX channel) {
   return voltage;
 }
 
-NO2Sensor::NO2Sensor(int WE1, int Aux, int PT) {
-    WE1Pin = WE1;
-    Aux1Pin = Aux;
-    PTPin = PT;
+NO2Sensor::NO2Sensor() {
     adc = ADS1115_WE(0x48);
 }
 

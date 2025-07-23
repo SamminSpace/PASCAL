@@ -22,7 +22,7 @@ PumpController controller = PumpController();
 HumiditySensor humidity = HumiditySensor();
 BMP bmp = BMP();
 OxygenSensor oxygen = OxygenSensor();
-NO2Sensor no2 = NO2Sensor(config.pins.WE1Pin, config.pins.Aux1Pin, config.pins.PTPin);
+NO2Sensor no2 = NO2Sensor();
 
 
 // Sets the needed pins to be output or input
