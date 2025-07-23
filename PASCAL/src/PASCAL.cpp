@@ -34,9 +34,6 @@ void initPins() {
 	pinMode(config.pins.tiny, OUTPUT);
 	pinMode(config.pins.smol, OUTPUT);
 	pinMode(config.pins.blinker, OUTPUT);
-	pinMode(config.pins.WE1Pin, OUTPUT);
-	pinMode(config.pins.Aux1Pin, OUTPUT);
-	pinMode(config.pins.PTPin, OUTPUT);
 	pinMode(config.pins.i2c.scl, OUTPUT);
 	pinMode(config.pins.i2c.sda, OUTPUT);
 

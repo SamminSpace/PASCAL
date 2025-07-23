@@ -17,6 +17,7 @@ void GPS::init() {
     // Initialization
     if (!gps.begin()) {
 		data.error = data.error > GPS_ERROR ? data.error : GPS_ERROR;	
+		logger.writeError("GPS Initialization Error");
 		return;	
     }
 
@@ -24,8 +25,8 @@ void GPS::init() {
     gps.setI2COutput(COM_TYPE_UBX);
     gps.setNavigationFrequency(5);
     if (gps.setDynamicModel(DYN_MODEL_AIRBORNE4g) == false) {
-		//? Should we have a separate error for this or just GPS error
 		data.error = data.error > GPS_ERROR ? data.error : GPS_ERROR;	
+		logger.writeError("Dynamic Model Incorrectly Set Error (GPS init)");
 	}
     gps.saveConfiguration();
 

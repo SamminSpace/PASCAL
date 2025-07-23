@@ -23,6 +23,7 @@ void NO2Sensor::init(float WEOffset, float AuxOffset, float sensitivity, float t
 
     if(!adc.init()){
        data.error = data.error > NO2_ERROR ? data.error : NO2_ERROR;	
+       logger.writeError("ADC Initialization Error");
     }
 
     adc.setVoltageRange_mV(ADS1115_RANGE_6144);

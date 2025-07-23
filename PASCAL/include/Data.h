@@ -77,6 +77,6 @@ struct Data {
 	float WE_real; 	// mV 
 	float Aux_real; // mV
 
-	// TODO Implement expandability so that all the errors are logged
-	Error error = NO_ERROR; // Yields the highest error generated
+    // The error code we are displaying
+    Error error = NO_ERROR; // Yields the highest error generated
 };

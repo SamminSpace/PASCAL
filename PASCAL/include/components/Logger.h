@@ -6,6 +6,7 @@
 class Logger {
 private:
     char* fileName;
+    char* errorFileName;
 public:
 
     // Creates a new logger object
@@ -17,6 +18,9 @@ public:
 
     // Writes something to the logger
     void write(String toWrite);
+
+    // Writes an error to the error file
+    void writeError(String errorName);
 
 	// Writes all of the data we currently have to the SD
 	void writeTelemetry();

@@ -6,7 +6,8 @@
 void HumiditySensor::turnOn() {
     if(!humidity.begin()){
 		data.error = data.error > HUMID_ERROR ? data.error : HUMID_ERROR;	
-    }
+		logger.writeError("Humidity Sensor Initialization Error");
+	}
 	
 	// If we switch to this it should make everything way faster
 	humidity.setAutoMode(AUTO_MEASUREMENT_0_5MPS_LP0);
