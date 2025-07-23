@@ -24,6 +24,9 @@ As such, PASCAL needs to be able to sample the air at various altitudes during a
 - [X] Controls flashing for external LEDs
 - [ ] Dry runs solenoids before flight
     - Soon, we will have a checking sequence to ensure audibly that the solenoids for each sample are connected and working
+- [ ] Separate Error logging
+    - In order to keep the errors from mixing in with the data, we will be logging them in a separate file
+    - This is not yet implemented in the main code, but branch `General_Improvements` has an untested setup for it
 
 ## Last Flight 
 Outreach Day March 28th, 2025
