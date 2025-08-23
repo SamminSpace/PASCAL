@@ -65,7 +65,7 @@ void Logger::write(String toWrite) {
         dataFile.println(toWrite);
         dataFile.close();
     } else {
-		writeError("`write` function failed to open file");
+		writeError("`write` Function Failed on Opening Error");
 	}
 }
 
