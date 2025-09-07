@@ -26,10 +26,11 @@ As such, PASCAL needs to be able to sample the air at various altitudes during a
     - Soon, we will have a checking sequence to ensure audibly that the solenoids for each sample are connected and working
 
 ## Last Flight 
-Summer, 2025
+July 19, 2025
 
 ## Next Flight
 WHO KNOWS
+When the rain gods decided to bless us with a storm
 
 
 ## For More Information...
