@@ -26,12 +26,10 @@ As such, PASCAL needs to be able to sample the air at various altitudes during a
     - Soon, we will have a checking sequence to ensure audibly that the solenoids for each sample are connected and working
 
 ## Last Flight 
-Outreach Day March 28th, 2025
+Summer, 2025
 
 ## Next Flight
-FFR: April 11th
-
-Night Flight: April 12th
+WHO KNOWS
 
 
 ## For More Information...
